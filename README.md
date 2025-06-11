@@ -1,3 +1,20 @@
+## Flow
+- Landing Page 
+    - Submissions of other people
+    - Vote them 
+    - Result on result day
+- About Page
+    - Rules Page
+    - How to participate
+    - How to vote
+    - How to win
+- Register Page
+  - Sign Up/In with Gmail
+  - Fill basic information
+  - Submit your Entry
+
+
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started

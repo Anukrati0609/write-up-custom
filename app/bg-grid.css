@@ -1,0 +1,94 @@
+/* Background Grid Patterns */
+.bg-grid-small-white {
+  --grid-size: 30px;
+  --grid-strength: 1px;
+  --grid-color: currentColor;
+
+  background-image: linear-gradient(
+      to right,
+      var(--grid-color) var(--grid-strength),
+      transparent var(--grid-strength)
+    ),
+    linear-gradient(
+      to bottom,
+      var(--grid-color) var(--grid-strength),
+      transparent var(--grid-strength)
+    );
+  background-size: var(--grid-size) var(--grid-size);
+  opacity: 0.05;
+}
+
+/* Modern Tech Grid Pattern */
+.bg-tech-grid {
+  --dot-size: 1px;
+  --dot-space: 22px;
+  --dot-color: rgb(var(--foreground) / 0.07);
+
+  background-image: radial-gradient(
+    var(--dot-color) var(--dot-size),
+    transparent 0
+  );
+  background-size: var(--dot-space) var(--dot-space);
+}
+
+/* Animated Gradient Background */
+.bg-gradient-animate {
+  background: linear-gradient(
+    125deg,
+    hsl(var(--primary) / 0.2),
+    transparent 40%,
+    hsl(var(--secondary, 210 40% 50%) / 0.1) 60%,
+    hsl(var(--primary) / 0.2) 100%
+  );
+  background-size: 200% 200%;
+  animation: gradientAnimation 15s ease infinite;
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Glowing Dot Matrix Pattern */
+.bg-dot-matrix {
+  --dot-size: 0.5px;
+  --dot-space: 16px;
+  --dot-color: rgb(var(--primary) / 0.15);
+
+  background-image: radial-gradient(
+      var(--dot-color) var(--dot-size),
+      transparent 0
+    ),
+    radial-gradient(var(--dot-color) var(--dot-size), transparent 0);
+  background-position: 0 0,
+    calc(var(--dot-space) / 2) calc(var(--dot-space) / 2);
+  background-size: var(--dot-space) var(--dot-space);
+}
+
+/* Gradient Text Animation */
+.bg-300\% {
+  background-size: 300% 300%;
+}
+
+.animate-gradient {
+  animation: moveGradient 8s ease infinite;
+}
+
+@keyframes moveGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
