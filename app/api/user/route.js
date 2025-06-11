@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/config/firebase";
-import { collection, doc, getDoc, getDocs, setDoc, query, limit } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  query,
+  limit,
+} from "firebase/firestore";
 
 // Function to ensure users collection exists
 async function ensureUserCollectionExists() {
@@ -31,7 +39,7 @@ export async function GET(request) {
     }
 
     // Ensure collections exist
-    await ensureUserCollectionExists();    // Get user document
+    await ensureUserCollectionExists(); // Get user document
     const userDocRef = doc(db, "users", userId);
     const userDoc = await getDoc(userDocRef);
 

@@ -28,6 +28,9 @@
     "@tiptap/pm": "^2.14.0",
     "@tiptap/react": "^2.14.0",
     "@tiptap/starter-kit": "^2.14.0",
+    "@vercel/edge-config": "^1.4.0",
+    "@vercel/kv": "^3.0.0",
+    "@vercel/postgres": "^0.10.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
@@ -42,6 +45,7 @@
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.57.0",
     "react-icons": "^5.5.0",
+    "sonner": "^2.0.5",
     "tailwind-merge": "^3.3.0",
     "zod": "^3.25.57",
     "zustand": "^5.0.5"

@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/config/firebase";
-import { collection, doc, getDoc, getDocs, updateDoc, setDoc, query, limit } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  updateDoc,
+  setDoc,
+  query,
+  limit,
+} from "firebase/firestore";
 
 // Function to ensure collections exist
 async function ensureCollectionsExist() {
@@ -51,7 +60,7 @@ export async function POST(request) {
     }
 
     // Ensure collections exist
-    await ensureCollectionsExist();    // Check if user exists and hasn't voted yet
+    await ensureCollectionsExist(); // Check if user exists and hasn't voted yet
     const userDocRef = doc(db, "users", userId);
     const userDoc = await getDoc(userDocRef);
 
@@ -90,7 +99,8 @@ export async function POST(request) {
       return NextResponse.json(
         { error: "You have already voted for this entry" },
         { status: 400 }
-      );    } // Update entry with vote
+      );
+    } // Update entry with vote
     const currentVoters = entryData.voters || [];
     await updateDoc(entryDocRef, {
       votes: (entryData.votes || 0) + 1,

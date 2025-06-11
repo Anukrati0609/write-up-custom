@@ -109,23 +109,12 @@ const FormStep2 = ({
               <FaKeyboard size={14} />
             </span>
             <span>Content</span>
-          </label>
+          </label>{" "}
           <div className="relative">
             <ContentEditor
               content={formData.content}
               onChange={handleContentChange}
             />
-            <div className="flex justify-between items-center mt-2">
-              <p className="text-xs text-slate-500">
-                Content should be between 1000-1500 words
-              </p>
-              <div className="text-slate-500 text-xs">
-                <div className="bg-slate-700/50 px-2 py-1 rounded-md">
-                  {/* Approximate character count - not perfect for HTML content but gives an idea */}
-                  ~{formData.content.replace(/<[^>]*>/g, "").length} chars
-                </div>
-              </div>
-            </div>
           </div>
         </motion.div>
       </div>

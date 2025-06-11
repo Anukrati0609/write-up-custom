@@ -1,17 +1,28 @@
-import { NextRequest, NextResponse } from "next/server";
-import { adminAuth, adminDb } from "@/config/firebase-admin";
+import { NextResponse } from "next/server";
+import { db } from "@/config/firebase";
+import {
+  collection,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  query,
+  limit,
+  getDocs,
+} from "firebase/firestore";
 
 // Function to ensure users collection exists
 async function ensureCollectionExists() {
   try {
     // Check if users collection exists by trying to get a document
-    const testDoc = await adminDb.collection("users").limit(1).get();
+    const testQuery = query(collection(db, "users"), limit(1));
+    const testDoc = await getDocs(testQuery);
 
     // If collection doesn't exist, create it with a dummy document and then delete it
     if (testDoc.empty) {
-      const tempDocRef = adminDb.collection("users").doc("temp");
-      await tempDocRef.set({ temp: true });
-      await tempDocRef.delete();
+      const tempDocRef = doc(db, "users", "temp");
+      await setDoc(tempDocRef, { temp: true });
+      await setDoc(tempDocRef, {}, { merge: false }); // Delete content
       console.log("Users collection created");
     }
   } catch (error) {
@@ -21,54 +32,51 @@ async function ensureCollectionExists() {
 
 export async function POST(request) {
   try {
-    const { idToken } = await request.json();
+    const { userDoc } = await request.json();
+    console.log("Received userDoc:", userDoc);
 
-    if (!idToken) {
+    if (!userDoc || !userDoc.uid) {
       return NextResponse.json(
-        { error: "ID token is required" },
+        { error: "User information is required" },
         { status: 400 }
       );
     }
 
     // Ensure collections exist
-    await ensureCollectionExists();
-
-    // Verify the ID token using Firebase Admin
-    const decodedToken = await adminAuth.verifyIdToken(idToken);
-    const { uid, email, name, picture } = decodedToken;
+    await ensureCollectionExists(); // Extract user information
+    const { uid, email, displayName, photoURL } = userDoc;
 
     // Check if user exists in Firestore
-    const userDocRef = adminDb.collection("users").doc(uid);
-    const userDoc = await userDocRef.get();
+    const userDocRef = doc(db, "users", uid);
+    const userDocSnapshot = await getDoc(userDocRef);
     console.log(
       "User document:",
-      userDoc,
-      userDoc.exists ? "exists" : "does not exist"
+      userDocSnapshot,
+      userDocSnapshot.exists() ? "exists" : "does not exist"
     );
 
     let userData;
-
-    if (!userDoc.exists) {
+    if (!userDocSnapshot.exists()) {
       // Create new user document
       userData = {
         uid,
         email,
-        displayName: name,
-        photoURL: picture,
+        displayName,
+        photoURL,
         is_submitted: false,
         is_voted: false,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
 
-      await userDocRef.set(userData);
+      await setDoc(userDocRef, userData);
     } else {
       // Update existing user's last login
-      userData = userDoc.data();
-      await userDocRef.update({
+      userData = userDocSnapshot.data();
+      await updateDoc(userDocRef, {
         updatedAt: new Date(),
-        displayName: name,
-        photoURL: picture,
+        displayName,
+        photoURL,
       });
     }
     return NextResponse.json({
@@ -76,8 +84,8 @@ export async function POST(request) {
       user: {
         uid,
         email,
-        displayName: name,
-        photoURL: picture,
+        displayName,
+        photoURL,
         is_submitted: userData.is_submitted,
         is_voted: userData.is_voted,
       },

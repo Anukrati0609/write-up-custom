@@ -4,18 +4,32 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useUserStore } from "@/store/useUserStore";
 import Link from "next/link";
+import { Heart, ThumbsUp, Clock, FileText, ThumbsDown } from "lucide-react";
+import AnimatedCard from "@/components/ui/animated-card";
+import { SectionHeading } from "@/components/ui/section-heading";
 import {
-  FaHeart,
-  FaUser,
-  FaCalendar,
-  FaGraduationCap,
-  FaVoteYea,
-} from "react-icons/fa";
-import { MdHome } from "react-icons/md";
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { AnimatedGradientBorder } from "@/components/ui/animated-gradient-border";
+import { IconButton } from "@/components/ui/icon-button";
+import { Toaster, toast } from "sonner";
 
 export default function Entries() {
-  const { user, getEntries, voteForEntry, hasVoted, loading, initializeAuth } =
-    useUserStore();
+  const {
+    user,
+    getEntries,
+    voteForEntry,
+    removeVote,
+    hasVoted,
+    loading,
+    initializeAuth,
+  } = useUserStore();
 
   const [entries, setEntries] = useState([]);
   const [loadingEntries, setLoadingEntries] = useState(true);
@@ -25,6 +39,7 @@ export default function Entries() {
     const unsubscribe = initializeAuth();
     return unsubscribe;
   }, [initializeAuth]);
+
   useEffect(() => {
     const fetchEntries = async () => {
       setLoadingEntries(true);
@@ -56,31 +71,51 @@ export default function Entries() {
       setLoadingEntries(false);
     }
   };
-
   const handleVote = async (entryId) => {
     if (!user) {
-      alert("Please sign in to vote");
+      toast.error("Please sign in to vote");
       return;
     }
 
-    if (hasVoted()) {
-      alert("You have already voted");
+    // If user has already voted for this entry, unlike it
+    if (hasVoted() && user.votedFor === entryId) {
+      setVotingFor(entryId);
+      try {
+        const result = await removeVote(entryId);
+        if (result.success) {
+          // Refresh entries to show updated vote count
+          await refreshEntries();
+          toast.success("Vote removed successfully!");
+        } else {
+          toast.error(result.error || "Failed to remove vote");
+        }
+      } catch (error) {
+        console.error("Unlike error:", error);
+        toast.error("Failed to remove vote. Please try again.");
+      } finally {
+        setVotingFor(null);
+      }
+      return;
+    } // If user has voted for a different entry, show toast and return
+    if (hasVoted() && user.votedFor !== entryId) {
+      toast.error("You've already voted for another entry");
       return;
     }
 
+    // Otherwise, cast a vote
     setVotingFor(entryId);
     try {
       const result = await voteForEntry(entryId);
       if (result.success) {
         // Refresh entries to show updated vote count
         await refreshEntries();
-        alert("Vote cast successfully!");
+        toast.success("Vote cast successfully!");
       } else {
-        alert(result.error || "Failed to cast vote");
+        toast.error(result.error || "Failed to cast vote");
       }
     } catch (error) {
       console.error("Voting error:", error);
-      alert("Failed to cast vote. Please try again.");
+      toast.error("Failed to cast vote. Please try again.");
     } finally {
       setVotingFor(null);
     }
@@ -98,159 +133,151 @@ export default function Entries() {
     return words.slice(0, maxWords).join(" ") + "...";
   };
 
+  // Animation variants
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
   if (loadingEntries) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-slate-300">Loading entries...</p>
+          <div className="animate-pulse rounded-full h-16 w-16 bg-primary/20 flex items-center justify-center mx-auto mb-6">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+          </div>
+          <p className="text-muted-foreground">Loading entries...</p>
         </div>
       </div>
     );
   }
-
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 py-12 px-4">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
+    <main className="container mx-auto py-12 px-4 md:px-6">
+      {" "}
+      <Toaster />
+      <SectionHeading
+        title="Competition Entries"
+        subtitle="Browse and vote for your favorite entries in the Matrix WriteItUp competition"
+      />
+      {user && hasVoted() && (
         <motion.div
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: -20 }}
+          className="max-w-md mx-auto mb-8 text-center"
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ delay: 0.3 }}
         >
-          <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-indigo-500 mb-6">
-            Competition Entries
-          </h1>
-          <p className="text-slate-300 text-lg max-w-2xl mx-auto">
-            Browse and vote for your favorite entries in the Matrix WriteItUp
-            competition
-          </p>
-
-          {user && (
-            <div className="mt-6 flex items-center justify-center gap-4 text-sm text-slate-400">
-              <span>Welcome, {user.displayName}</span>
-              {hasVoted() && (
-                <span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full">
-                  ✓ Voted
-                </span>
-              )}
-            </div>
-          )}
+          <Badge variant="secondary" className="px-4 py-2">
+            <ThumbsUp className="mr-2 h-4 w-4" />
+            You have cast your vote!
+          </Badge>
         </motion.div>
+      )}
+      {entries.length === 0 ? (
+        <AnimatedCard
+          className="p-8 text-center max-w-md mx-auto"
+          whileHover={{ y: 0 }}
+        >
+          <FileText className="w-12 h-12 mx-auto mb-4 text-primary opacity-80" />
+          <h3 className="text-2xl font-bold mb-2">No Entries Yet</h3>
+          <p className="text-muted-foreground mb-6">
+            Be the first to submit your entry!
+          </p>
+          <Link href="/register">
+            <Button className="px-6">Submit Entry</Button>
+          </Link>
+        </AnimatedCard>
+      ) : (
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {entries.map((entry) => (
+            <motion.div key={entry.id} variants={fadeInUp}>
+              {" "}
+              <AnimatedGradientBorder
+                gradientColors="from-primary via-accent to-primary"
+                animationDuration={8}
+                containerClassName="h-full"
+              >
+                <Card className="h-full flex flex-col bg-black/10 backdrop-blur-sm">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-foreground line-clamp-1">
+                      {entry.title}
+                    </CardTitle>
+                  </CardHeader>
 
-        {/* Entries Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {entries.map((entry, index) => (
-            <motion.div
-              key={entry.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-slate-900/60 backdrop-blur-lg rounded-xl border border-slate-700/50 p-6 hover:border-slate-600/50 transition-all hover:transform hover:scale-105"
-            >
-              {/* Header */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-white mb-2 line-clamp-2">
-                    {entry.title}
-                  </h3>
-                  <div className="flex items-center gap-4 text-sm text-slate-400">
-                    <div className="flex items-center gap-1">
-                      <FaUser className="w-3 h-3" />
-                      <span>{entry.authorName}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <FaGraduationCap className="w-3 h-3" />
-                      <span>
-                        {entry.year} - {entry.branch}
+                  <CardContent className="flex-grow pb-4">
+                    <p className="text-muted-foreground line-clamp-4">
+                      {truncateContent(entry.content, 40)}
+                    </p>
+                  </CardContent>
+
+                  <CardFooter className="flex justify-between items-center pt-4 border-t border-border/40">
+                    <div className="flex items-center space-x-1 text-muted-foreground">
+                      <Clock className="w-4 h-4" />
+                      <span className="text-xs">
+                        {entry.createdAt
+                          ? new Date(entry.createdAt).toLocaleDateString()
+                          : "Recently"}
                       </span>
                     </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 text-red-500">
-                  <FaHeart className="w-4 h-4" />
-                  <span className="font-semibold">{entry.votes}</span>
-                </div>
-              </div>
-
-              {/* Content Preview */}
-              <div className="mb-4">
-                <p className="text-slate-300 text-sm line-clamp-4">
-                  {truncateContent(entry.content)}
-                </p>
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center justify-between">
-                <div className="text-xs text-slate-500">
-                  {entry.createdAt
-                    ? new Date(entry.createdAt).toLocaleDateString()
-                    : "Recently"}
-                </div>
-
-                {user && !hasVoted() && (
-                  <motion.button
-                    onClick={() => handleVote(entry.id)}
-                    disabled={votingFor === entry.id}
-                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white text-sm font-medium rounded-lg transition-all shadow-lg hover:shadow-red-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
-                    whileHover={{ scale: votingFor === entry.id ? 1 : 1.05 }}
-                    whileTap={{ scale: votingFor === entry.id ? 1 : 0.95 }}
-                  >
-                    <FaVoteYea className="w-4 h-4" />
-                    <span>{votingFor === entry.id ? "Voting..." : "Vote"}</span>
-                  </motion.button>
-                )}
-              </div>
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant="outline"
+                        className="flex items-center gap-1 px-2 py-1"
+                      >
+                        <Heart className="h-3.5 w-3.5 text-accent fill-accent" />
+                        <span>{entry.votes}</span>
+                      </Badge>{" "}
+                      {user &&
+                        (user.votedFor === entry.id ? (
+                          <IconButton
+                            icon={ThumbsDown}
+                            variant="secondary"
+                            size="sm"
+                            disabled={votingFor === entry.id}
+                            onClick={() => handleVote(entry.id)}
+                            className="bg-red-600/20 hover:bg-red-600/30 text-red-500"
+                          >
+                            {votingFor === entry.id
+                              ? "Processing..."
+                              : "Unvote"}
+                          </IconButton>
+                        ) : !hasVoted() ? (
+                          <IconButton
+                            icon={ThumbsUp}
+                            variant="outline"
+                            size="sm"
+                            disabled={votingFor === entry.id}
+                            onClick={() => handleVote(entry.id)}
+                          >
+                            {votingFor === entry.id ? "Voting..." : "Vote"}
+                          </IconButton>
+                        ) : null)}
+                    </div>
+                  </CardFooter>
+                </Card>
+              </AnimatedGradientBorder>
             </motion.div>
           ))}
-        </div>
-
-        {entries.length === 0 && (
-          <motion.div
-            className="text-center py-12"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="text-6xl mb-4">📝</div>
-            <h3 className="text-2xl font-bold text-white mb-2">
-              No Entries Yet
-            </h3>
-            <p className="text-slate-400 mb-6">
-              Be the first to submit your entry!
-            </p>
-            <Link href="/register">
-              <motion.button
-                className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium rounded-lg transition-all"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Submit Entry
-              </motion.button>
-            </Link>
-          </motion.div>
-        )}
-
-        {/* Navigation */}
-        <motion.div
-          className="text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          <Link href="/">
-            <motion.button
-              className="flex items-center gap-2 mx-auto px-6 py-3 bg-slate-800/60 hover:bg-slate-700/60 text-white font-medium rounded-lg transition-all border border-slate-700/50"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <MdHome className="w-5 h-5" />
-              <span>Back to Home</span>
-            </motion.button>
-          </Link>
         </motion.div>
+      )}
+      <div className="mt-12 text-center">
+        <Link href="/">
+          <Button variant="outline">Back to Home</Button>
+        </Link>
       </div>
     </main>
   );

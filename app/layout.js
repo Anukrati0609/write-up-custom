@@ -3,6 +3,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import FooterContent from "@/components/FooterContent";
 import { ThemeProvider } from "@/components/theme-provider";
+import { useUserStore } from "@/store/useUserStore";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -32,7 +33,7 @@ export default function RootLayout({ children }) {
           disableTransitionOnChange
         >
           <div className="min-h-screen flex flex-col">
-            <Header />
+            <Header/>
             <main className="flex-1">{children}</main>
             <FooterContent />
           </div>

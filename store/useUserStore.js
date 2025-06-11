@@ -25,14 +25,23 @@ export const useUserStore = create((set, get) => ({
     set({ loading: true, error: null });
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      const idToken = await result.user.getIdToken();
+      const userInfo = await result.user;
+
+      const { uid, email, displayName, photoURL } = userInfo;
+
+      const userDoc = {
+        uid,
+        email,
+        displayName,
+        photoURL,
+      };
 
       const response = await fetch("/api/auth/google", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ idToken }),
+        body: JSON.stringify({ userDoc }),
       });
 
       const data = await response.json();
@@ -164,13 +173,57 @@ export const useUserStore = create((set, get) => ({
 
       // Update user's voting status
       set({
-        user: { ...user, is_voted: true },
+        user: { ...user, is_voted: true, votedFor: entryId },
         loading: false,
       });
 
       return { success: true };
     } catch (error) {
       console.error("Vote error:", error);
+      set({ error: error.message, loading: false });
+      return { success: false, error: error.message };
+    }
+  },
+
+  // Remove vote (unlike)
+  removeVote: async (entryId) => {
+    const user = get().user;
+    if (!user) {
+      throw new Error("User not authenticated");
+    }
+
+    if (!user.is_voted || user.votedFor !== entryId) {
+      throw new Error("You haven't voted for this entry");
+    }
+
+    set({ loading: true, error: null });
+    try {
+      const response = await fetch("/api/vote/unlike", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.uid,
+          entryId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to remove vote");
+      }
+
+      // Update user's voting status
+      set({
+        user: { ...user, is_voted: false, votedFor: null },
+        loading: false,
+      });
+
+      return { success: true };
+    } catch (error) {
+      console.error("Remove vote error:", error);
       set({ error: error.message, loading: false });
       return { success: false, error: error.message };
     }

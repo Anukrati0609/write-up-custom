@@ -20,17 +20,17 @@ import { Github, Twitter, Linkedin, Instagram, Heart } from "lucide-react";
 import AnimatedGradientBorder from "./ui/animated-gradient-border";
 
 const SocialLink = ({ href, icon: Icon, label }) => {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="h-9 w-9 rounded-full bg-accent/50 hover:bg-accent flex items-center justify-center transition-colors group"
-      aria-label={label}
-    >
-      <Icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-    </a>
-  );
+    return (
+        <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="h-9 w-9 rounded-full bg-accent/50 hover:bg-accent flex items-center justify-center transition-colors group"
+            aria-label={label}
+        >
+            <Icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+        </a>
+    );
 };
 
 const FooterContent = () => {
@@ -112,22 +112,17 @@ const FooterContent = () => {
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex flex-wrap gap-6 justify-center md:justify-start">
             <SocialLink
-              href="https://github.com"
+              href="https://github.com/Matrix-JEC"
               icon={Github}
               label="GitHub"
             />
             <SocialLink
-              href="https://twitter.com"
-              icon={Twitter}
-              label="Twitter"
-            />
-            <SocialLink
-              href="https://linkedin.com"
+              href="www.linkedin.com/in/matrix-jec-2574412ab"
               icon={Linkedin}
               label="LinkedIn"
             />
             <SocialLink
-              href="https://instagram.com"
+              href="https://www.instagram.com/matrix.jec/"
               icon={Instagram}
               label="Instagram"
             />

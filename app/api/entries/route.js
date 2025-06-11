@@ -1,25 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/config/firebase";
-import { collection, doc, getDoc, getDocs, setDoc, updateDoc, query, limit, where } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  updateDoc,
+  query,
+  limit,
+  where,
+} from "firebase/firestore";
 
 // Function to ensure collections exist
 async function ensureCollectionsExist() {
   try {
     // Check if entries collection exists
-    const entriesTest = await adminDb.collection("entries").limit(1).get();
+    const entriesQuery = query(collection(db, "entries"), limit(1));
+    const entriesTest = await getDocs(entriesQuery);
     if (entriesTest.empty) {
-      const tempDocRef = adminDb.collection("entries").doc("temp");
-      await tempDocRef.set({ temp: true });
-      await tempDocRef.delete();
+      const tempDocRef = doc(db, "entries", "temp");
+      await setDoc(tempDocRef, { temp: true });
+      await setDoc(tempDocRef, {}, { merge: false }); // Delete content
       console.log("Entries collection created");
     }
 
     // Check if users collection exists
-    const usersTest = await adminDb.collection("users").limit(1).get();
+    const usersQuery = query(collection(db, "users"), limit(1));
+    const usersTest = await getDocs(usersQuery);
     if (usersTest.empty) {
-      const tempDocRef = adminDb.collection("users").doc("temp");
-      await tempDocRef.set({ temp: true });
-      await tempDocRef.delete();
+      const tempDocRef = doc(db, "users", "temp");
+      await setDoc(tempDocRef, { temp: true });
+      await setDoc(tempDocRef, {}, { merge: false }); // Delete content
       console.log("Users collection created");
     }
   } catch (error) {
@@ -40,13 +52,11 @@ export async function POST(request) {
     }
 
     // Ensure collections exist
-    await ensureCollectionsExist();
+    await ensureCollectionsExist(); // Check if user already submitted an entry
+    const userDocRef = doc(db, "users", userId);
+    const userDoc = await getDoc(userDocRef);
 
-    // Check if user already submitted an entry
-    const userDocRef = adminDb.collection("users").doc(userId);
-    const userDoc = await userDocRef.get();
-
-    if (!userDoc.exists) {
+    if (!userDoc.exists()) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
@@ -58,18 +68,9 @@ export async function POST(request) {
       );
     }
 
-    // Validate content length (1000-1500 words approximately)
-    const wordCount = content.replace(/<[^>]*>/g, "").split(/\s+/).length;
-    if (wordCount < 1000 || wordCount > 1500) {
-      return NextResponse.json(
-        { error: "Content must be between 1000-1500 words" },
-        { status: 400 }
-      );
-    }
-
     // Create entry document
     const entryId = `entry_${userId}`;
-    const entryDocRef = adminDb.collection("entries").doc(entryId);
+    const entryDocRef = doc(db, "entries", entryId);
     const entryData = {
       id: entryId,
       userId,
@@ -84,10 +85,10 @@ export async function POST(request) {
       updatedAt: new Date(),
     };
 
-    await entryDocRef.set(entryData);
+    await setDoc(entryDocRef, entryData);
 
     // Update user's submission status
-    await userDocRef.update({
+    await updateDoc(userDocRef, {
       is_submitted: true,
       updatedAt: new Date(),
     });
@@ -112,20 +113,23 @@ export async function GET(request) {
     const userId = searchParams.get("userId");
 
     // Ensure collections exist
-    await ensureCollectionsExist();
-
-    // Get all entries (excluding the current user's entry if userId is provided)
-    let entriesQuery = adminDb.collection("entries");
+    await ensureCollectionsExist(); // Get all entries (excluding the current user's entry if userId is provided)
+    let entriesQuery;
 
     if (userId) {
-      entriesQuery = entriesQuery.where("userId", "!=", userId);
+      entriesQuery = query(
+        collection(db, "entries"),
+        where("userId", "!=", userId)
+      );
+    } else {
+      entriesQuery = collection(db, "entries");
     }
 
-    const querySnapshot = await entriesQuery.get();
+    const querySnapshot = await getDocs(entriesQuery);
     const entries = [];
 
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
+    querySnapshot.forEach((docSnap) => {
+      const data = docSnap.data();
       // Skip temporary documents
       if (data.temp) return;
 

@@ -71,8 +71,11 @@ import {
 } from "@/components/ui/command";
 import { EnhancedNavLink } from "@/components/EnhancedNavLink";
 import AnimatedGradientBorder from "@/components/ui/animated-gradient-border";
+import { useUserStore } from "@/store/useUserStore";
 
-const Header = ({ user }) => {
+const Header = () => {
+  const { user, signOut } = useUserStore();
+  console.log("Header component loaded", user);
   const [isScrolled, setIsScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("/"); // Default to home page
@@ -212,9 +215,9 @@ const Header = ({ user }) => {
                   >
                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-violet-500/10 to-purple-500/10 transition-opacity duration-300" />
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user.image} alt={user.name} />
+                      <AvatarImage src={user.image} alt={user.displayName} />
                       <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                        {user.name
+                        {user.displayName
                           ?.split(" ")
                           .map((n) => n[0])
                           .join("")}
@@ -226,7 +229,7 @@ const Header = ({ user }) => {
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">
-                        {user.name}
+                        {user.displayName}
                       </p>
                       <p className="text-xs leading-none text-muted-foreground">
                         {user.email}
@@ -244,7 +247,10 @@ const Header = ({ user }) => {
                     <Layers className="h-4 w-4" /> Settings
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-red-500 flex items-center gap-2">
+                  <DropdownMenuItem
+                    className="text-red-500 flex items-center gap-2"
+                    onClick={signOut}
+                  >
                     <Zap className="h-4 w-4" /> Log out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -272,7 +278,6 @@ const Header = ({ user }) => {
           </div>
           {/* Mobile Menu */}
           <div className="flex items-center gap-2 md:hidden">
-           
             <Sheet>
               <SheetTrigger asChild>
                 <AnimatedGradientBorder
@@ -387,16 +392,21 @@ const Header = ({ user }) => {
                       >
                         <div className="flex items-center gap-3">
                           <Avatar className="h-10 w-10 border border-slate-200/20 dark:border-slate-800/20">
-                            <AvatarImage src={user.image} alt={user.name} />
+                            <AvatarImage
+                              src={user.photoURL}
+                              alt={user.displayName}
+                            />
                             <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                              {user.name
+                              {user.displayName
                                 ?.split(" ")
                                 .map((n) => n[0])
                                 .join("")}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="text-sm font-medium">{user.name}</p>
+                            <p className="text-sm font-medium">
+                              {user.displayName}
+                            </p>
                             <p className="text-xs text-muted-foreground">
                               {user.email}
                             </p>
@@ -415,6 +425,7 @@ const Header = ({ user }) => {
                           variant="outline"
                           size="sm"
                           className="justify-start gap-2 text-red-500 border-slate-200/20 dark:border-slate-800/20"
+                          onClick={signOut}
                         >
                           <Zap className="h-3.5 w-3.5" /> Log Out
                         </Button>

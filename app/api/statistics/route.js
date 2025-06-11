@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/config/firebase";
-import { collection, getDocs, setDoc, doc, query, limit } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  setDoc,
+  doc,
+  query,
+  limit,
+} from "firebase/firestore";
 
 // Function to ensure collections exist
 async function ensureCollectionsExist() {
@@ -22,7 +29,7 @@ async function ensureCollectionsExist() {
 
 export async function GET(request) {
   try {
-    await ensureCollectionsExist();    // Get all entries with their vote counts
+    await ensureCollectionsExist(); // Get all entries with their vote counts
     const entriesSnapshot = await getDocs(collection(db, "entries"));
     const entries = [];
 
@@ -47,7 +54,7 @@ export async function GET(request) {
 
     // Get total vote statistics
     const votesSnapshot = await getDocs(collection(db, "votes"));
-    const totalVotes = votesSnapshot.size;    // Get total users
+    const totalVotes = votesSnapshot.size; // Get total users
     const usersSnapshot = await getDocs(collection(db, "users"));
     const totalUsers = usersSnapshot.size;
 

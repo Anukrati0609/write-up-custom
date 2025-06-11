@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/config/firebase";
-import { collection, doc, getDocs, getDoc, setDoc, query, limit } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDocs,
+  getDoc,
+  setDoc,
+  query,
+  limit,
+} from "firebase/firestore";
 
 // Database schema and initial setup
 const DATABASE_SCHEMA = {
@@ -58,7 +66,8 @@ const DATABASE_SCHEMA = {
 async function initializeDatabase() {
   const results = [];
 
-  try {    // Initialize each collection
+  try {
+    // Initialize each collection
     for (const [collectionName, schema] of Object.entries(DATABASE_SCHEMA)) {
       try {
         // Check if collection exists
@@ -118,7 +127,8 @@ async function initializeDatabase() {
         value: true,
         description: "Whether voting is currently enabled",
       },
-    ];    for (const setting of initialSettings) {
+    ];
+    for (const setting of initialSettings) {
       const settingDocRef = doc(db, "settings", setting.key);
       const settingDoc = await getDoc(settingDocRef);
       if (!settingDoc.exists()) {
@@ -173,7 +183,8 @@ export async function POST(request) {
 
     if (action === "check_health") {
       // Check database health
-      const health = {};      for (const collectionName of Object.keys(DATABASE_SCHEMA)) {
+      const health = {};
+      for (const collectionName of Object.keys(DATABASE_SCHEMA)) {
         try {
           const snapshot = await getDocs(collection(db, collectionName));
           health[collectionName] = {
