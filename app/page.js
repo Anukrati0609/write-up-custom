@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import {
   ArrowRight,
   FileText,
@@ -14,6 +14,24 @@ import {
   Award,
   Sparkles,
   Users,
+  TrendingUp,
+  Zap,
+  Terminal,
+  Code,
+  Star,
+  Clock,
+  ChevronRight,
+  LightbulbIcon,
+  BrainCircuit,
+  PenTool,
+  DollarSign,
+  Lightbulb,
+  Cpu,
+  Layers,
+  ChevronDown,
+  Rocket,
+  Check,
+  Flame,
 } from "lucide-react";
 
 // UI Components
@@ -34,22 +52,50 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { Separator } from "@/components/ui/separator";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+} from "@/components/ui/carousel";
 
 // Custom Components
 import TechBackground from "@/components/backgrounds/TechBackground";
+import MatrixRainBackground from "@/components/backgrounds/MatrixRainBackground";
+import CircuitLinesBackground from "@/components/backgrounds/CircuitLinesBackground";
 import AnimatedCard from "@/components/ui/animated-card";
-import SectionHeading from "@/components/ui/section-heading";
-import AnimatedGradientBorder from "@/components/ui/animated-gradient-border";
+import GlowingButton from "@/components/ui/glowing-button";
+import HoverSpotlight from "@/components/ui/hover-spotlight";
+import GlassMorphism from "@/components/ui/glass-morphism";
+import FloatingElement from "@/components/ui/floating-element";
+import { SectionHeading } from "@/components/ui/section-heading";
+import { AnimatedGradientBorder } from "@/components/ui/animated-gradient-border";
+import EntryCard from "@/components/entries/EntryCard";
+import { Toaster, toast } from "sonner";
+import ThreeDCard from "@/components/ui/3d-card";
+import TerminalDisplay from "@/components/ui/terminal-display";
+import TechButton from "@/components/ui/tech-button";
+import StatCounter from "@/components/ui/stat-counter";
 
 // Store
 import { useUserStore } from "@/store/useUserStore";
 
 export default function Home() {
-  const { user, getEntries, initializeAuth } = useUserStore();
+  const {
+    user,
+    getEntries,
+    voteForEntry,
+    removeVote,
+    hasVoted,
+    initializeAuth,
+  } = useUserStore();
   const [entries, setEntries] = useState([]);
-  const [featuredEntries, setFeaturedEntries] = useState([]);
+  const [topEntries, setTopEntries] = useState([]);
   const [loadingEntries, setLoadingEntries] = useState(true);
   const [statsVisible, setStatsVisible] = useState(false);
+  const [votingFor, setVotingFor] = useState(null);
+  const [activeTab, setActiveTab] = useState("top");
 
   useEffect(() => {
     const unsubscribe = initializeAuth();
@@ -80,8 +126,8 @@ export default function Home() {
             (a, b) => b.votes - a.votes
           );
 
-          // Set top 3 for featured section
-          setFeaturedEntries(sortedEntries.slice(0, 3));
+          // Set top 5 entries
+          setTopEntries(sortedEntries.slice(0, 5));
 
           // Set all entries for later use
           setEntries(sortedEntries);
@@ -95,6 +141,82 @@ export default function Home() {
 
     fetchEntries();
   }, [getEntries, user]);
+
+  const refreshEntries = async () => {
+    try {
+      const result = await getEntries();
+      if (result.success) {
+        // Filter out user's own entry
+        const filteredEntries = user
+          ? result.entries.filter((entry) => entry.userId !== user.uid)
+          : result.entries;
+
+        // Sort by votes (highest first)
+        const sortedEntries = [...filteredEntries].sort(
+          (a, b) => b.votes - a.votes
+        );
+
+        // Set top 5 entries
+        setTopEntries(sortedEntries.slice(0, 5));
+
+        // Set all entries
+        setEntries(sortedEntries);
+      }
+    } catch (error) {
+      console.error("Error fetching entries:", error);
+    }
+  };
+
+  const handleVote = async (entryId) => {
+    if (!user) {
+      toast.error("Please sign in to vote");
+      return;
+    }
+
+    // If user has already voted for this entry, unlike it
+    if (hasVoted() && user.votedFor === entryId) {
+      setVotingFor(entryId);
+      try {
+        const result = await removeVote(entryId);
+        if (result.success) {
+          // Refresh entries to show updated vote count
+          await refreshEntries();
+          toast.success("Vote removed successfully!");
+        } else {
+          toast.error(result.error || "Failed to remove vote");
+        }
+      } catch (error) {
+        console.error("Unlike error:", error);
+        toast.error("Failed to remove vote. Please try again.");
+      } finally {
+        setVotingFor(null);
+      }
+      return;
+    }
+    // If user has voted for a different entry, show toast and return
+    if (hasVoted() && user.votedFor !== entryId) {
+      toast.error("You've already voted for another entry");
+      return;
+    }
+
+    // Otherwise, cast a vote
+    setVotingFor(entryId);
+    try {
+      const result = await voteForEntry(entryId);
+      if (result.success) {
+        // Refresh entries to show updated vote count
+        await refreshEntries();
+        toast.success("Vote cast successfully!");
+      } else {
+        toast.error(result.error || "Failed to cast vote");
+      }
+    } catch (error) {
+      console.error("Voting error:", error);
+      toast.error("Failed to cast vote. Please try again.");
+    } finally {
+      setVotingFor(null);
+    }
+  };
 
   const stripHtml = (html) => {
     const tmp = document.createElement("DIV");
@@ -127,641 +249,1051 @@ export default function Home() {
     },
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+      },
+    },
+  };
+
+  const popIn = {
+    hidden: { scale: 0.8, opacity: 0 },
+    visible: {
+      scale: 1,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 260,
+        damping: 20,
+      },
+    },
+  };
+
   // Statistics data
   const stats = [
     {
-      icon: <FileText className="h-6 w-6 text-blue-400" />,
+      icon: <FileText className="h-7 w-7 text-blue-400" />,
       value: "120+",
       label: "Submissions",
       bgColor: "bg-blue-500/20",
       borderColor: "border-blue-500/30",
     },
     {
-      icon: <Users className="h-6 w-6 text-purple-400" />,
+      icon: <Users className="h-7 w-7 text-purple-400" />,
       value: "500+",
       label: "Participants",
       bgColor: "bg-purple-500/20",
       borderColor: "border-purple-500/30",
     },
     {
-      icon: <Award className="h-6 w-6 text-emerald-400" />,
+      icon: <Award className="h-7 w-7 text-emerald-400" />,
       value: "₹10K",
       label: "Prize Pool",
       bgColor: "bg-emerald-500/20",
       borderColor: "border-emerald-500/30",
     },
+    {
+      icon: <Star className="h-7 w-7 text-amber-400" />,
+      value: "10",
+      label: "Days Left",
+      bgColor: "bg-amber-500/20",
+      borderColor: "border-amber-500/30",
+    },
+  ];
+
+  // Key Features data
+  const keyFeatures = [
+    {
+      icon: <Sparkles className="h-6 w-6 text-blue-500" />,
+      title: "Showcase Your Talent",
+      description:
+        "Display your writing skills to a wider audience and gain recognition among peers and industry professionals.",
+      color: "from-blue-500 to-indigo-500",
+    },
+    {
+      icon: <FileText className="h-6 w-6 text-purple-500" />,
+      title: "Expert Feedback",
+      description:
+        "Receive valuable feedback from industry experts and experienced writers to improve your skills.",
+      color: "from-purple-500 to-pink-500",
+    },
+    {
+      icon: <Globe className="h-6 w-6 text-green-500" />,
+      title: "Networking Opportunities",
+      description:
+        "Connect with like-minded individuals and build relationships that can help in your professional journey.",
+      color: "from-green-500 to-emerald-500",
+    },
+    {
+      icon: <Zap className="h-6 w-6 text-amber-500" />,
+      title: "Win Exciting Rewards",
+      description:
+        "Top entries will be rewarded with cash prizes, certificates, and exclusive opportunities.",
+      color: "from-amber-500 to-orange-500",
+    },
+  ];
+
+  // Timeline data
+  const timelineEvents = [
+    {
+      date: "June 11, 2025",
+      title: "Registrations Open",
+      status: "active",
+    },
+    {
+      date: "June 14, 2025",
+      title: "Last Day for Registration",
+      status: "upcoming",
+    },
+    {
+      date: "June 15, 2025",
+      title: "Competition Starts",
+      status: "upcoming",
+    },
+    {
+      date: "June 30, 2025",
+      title: "Competition Ends",
+      status: "upcoming",
+    },
+    {
+      date: "July 7, 2025",
+      title: "Results Announcement",
+      status: "upcoming",
+    },
   ];
 
   return (
     <main className="flex flex-col">
+      <Toaster position="top-center" />
       {/* Hero Section */}
-      <section className="py-16 lg:py-24 relative overflow-hidden">
-        {/* Background effects */}
-        <div className="absolute inset-0 -z-10">
-          <TechBackground particleCount={80} />
+      <section className="py-20 lg:py-28 relative overflow-hidden min-h-[90vh] flex items-center">
+        {/* Enhanced multi-layered background effects */}
+        <div className="absolute inset-0 -z-50">
+          <MatrixRainBackground opacity={0.15} speed={0.8} fontSize={14} />
         </div>
-        <div className="absolute inset-0 bg-tech-grid -z-10" />
-        <div className="absolute inset-0 bg-dot-matrix -z-10" />
-        <div className="absolute inset-0 bg-gradient-animate -z-10" />
-        <div className="absolute inset-0 flex items-center justify-center -z-10">
-          <div className="w-[50rem] h-[50rem] rounded-full bg-primary/5 blur-3xl" />
+        <div className="absolute inset-0 -z-40">
+          <TechBackground particleCount={180} />
         </div>
-
-        <div className="container mx-auto px-4 flex flex-col lg:flex-row items-center gap-12">
+        <div className="absolute inset-0 -z-30 opacity-20">
+          <CircuitLinesBackground />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-black/95 to-black/90 -z-20" />
+        <div className="absolute inset-0 bg-dot-pattern opacity-30 -z-20" />
+        {/* Animated gradient background */}
+        <motion.div
+          className="absolute inset-0 -z-10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 2 }}
+        >
+          <div className="absolute top-1/4 right-1/4 w-[60rem] h-[60rem] rounded-full bg-gradient-to-br from-blue-600/10 to-purple-600/10 blur-[150px] animate-pulse-slow" />
+          <div className="absolute bottom-1/4 left-1/4 w-[50rem] h-[50rem] rounded-full bg-gradient-to-tr from-purple-600/10 to-blue-500/10 blur-[120px] animate-pulse-slow" />
+        </motion.div>
+        <div className="container mx-auto px-4 lg:px-8 flex flex-col-reverse lg:flex-row items-center gap-16 z-10">
           {/* Left content */}
           <motion.div
-            className="flex-1 max-w-2xl space-y-6"
+            className="flex-1 max-w-2xl space-y-10"
             initial="hidden"
             animate="visible"
             variants={fadeInUp}
           >
-            <Badge className="mb-4 bg-primary/10 text-primary border-primary/20 px-3 py-1 rounded-md flex items-center gap-1.5 w-fit">
-              <Calendar className="h-3.5 w-3.5" />
-              <span>Registration Open Until June 14, 2025</span>
-            </Badge>
-
-            <h1 className="text-4xl md:text-6xl xl:text-7xl font-bold tracking-tight leading-tight">
-              Matrix{" "}
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-500 to-primary bg-300% animate-gradient">
-                WriteItUp
-              </span>
-            </h1>
-
-            <p className="text-xl text-muted-foreground leading-relaxed">
-              Unleash your creative potential in the ultimate content writing
-              competition organized by Matrix JEC - the skill enhancement
-              community of Jabalpur Engineering College.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 pt-6">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button
-                  asChild
-                  size="lg"
-                  className="font-medium bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-500 border-none shadow-lg hover:shadow-primary/20 w-full sm:w-auto"
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="flex items-center gap-2"
+            >
+              <Badge className="mb-4 bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-white border-white/10 px-5 py-2.5 rounded-full flex items-center gap-2.5 w-fit shadow-lg shadow-primary/10 backdrop-blur-lg">
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                  }}
+                  className="relative"
                 >
-                  <Link href="/register" className="flex items-center gap-2">
-                    Register Now <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </motion.div>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button
-                  asChild
-                  size="lg"
-                  variant="outline"
-                  className="border-primary/20 hover:bg-primary/5 w-full sm:w-auto"
-                >
-                  <Link href="/guidelines">Learn More</Link>
-                </Button>
-              </motion.div>
-            </div>
+                  <div className="absolute -inset-2 bg-blue-500/20 rounded-full blur-md"></div>
+                  <Calendar className="h-5 w-5 text-blue-400 relative z-10" />
+                </motion.div>
+                <span>Registration Open Until June 14, 2025</span>
+              </Badge>
+            </motion.div>
 
-            <div className="pt-6 flex gap-4 items-center">
-              <div className="flex -space-x-3">
-                {[1, 2, 3, 4].map((i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: i * 0.1 }}
-                    className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500/80 to-purple-700/80 border-2 border-background flex items-center justify-center text-xs font-medium text-white"
+            <motion.div className="space-y-5">
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="flex items-center gap-3 mb-2"
+              >
+                <div className="h-6 w-1.5 rounded-full bg-gradient-to-b from-blue-500 to-purple-600"></div>
+                <span className="text-lg tracking-wider uppercase text-blue-400 font-medium">
+                  Tech Writing Competition
+                </span>
+              </motion.div>
+
+              <h1 className="text-5xl md:text-6xl xl:text-7xl font-bold tracking-tight leading-tight">
+                <span className="relative inline-block">
+                  Matrix{" "}
+                  <div className="absolute -top-2 -right-2 w-6 h-6">
+                    <motion.div
+                      animate={{
+                        rotate: [0, 10, -10, 0],
+                        scale: [1, 1.2, 0.9, 1],
+                      }}
+                      transition={{
+                        duration: 5,
+                        repeat: Infinity,
+                        repeatType: "reverse",
+                      }}
+                    >
+                      <Sparkles className="w-6 h-6 text-purple-400" />
+                    </motion.div>
+                  </div>
+                </span>
+                <AnimatedGradientBorder
+                  borderRadius="rounded-lg"
+                  gradientColors="from-blue-600 via-purple-600 to-blue-600"
+                  containerClassName="inline-flex"
+                  borderWidth="3px"
+                  animationDuration={4}
+                >
+                  <motion.span
+                    className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-300% animate-gradient-fast px-3 py-1"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 1, delay: 0.5 }}
                   >
-                    {String.fromCharCode(64 + i)}
-                  </motion.div>
-                ))}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                <span className="font-medium text-foreground">120+</span>{" "}
-                participants already registered
-              </p>
-            </div>
-          </motion.div>
+                    WriteItUp
+                  </motion.span>
+                </AnimatedGradientBorder>
+              </h1>
 
-          {/* Right content - Register Card */}
-          <motion.div
-            className="w-full md:w-auto relative"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
-          >
-            <div className="absolute -inset-1 bg-gradient-to-r from-primary to-purple-600 rounded-xl blur-md opacity-50 animate-slow-pulse"></div>
-            <Card className="backdrop-blur-sm border shadow-xl md:min-w-[400px] relative">
-              <div className="absolute inset-0 bg-dot-matrix opacity-40 rounded-xl pointer-events-none"></div>
-              <CardHeader className="pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-xl overflow-hidden bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
-                    <Image
-                      src="/file.svg"
-                      alt="WriteItUp"
-                      width={24}
-                      height={24}
-                    />
-                  </div>
-                  <div>
-                    <CardTitle>WriteItUp Competition</CardTitle>
-                    <CardDescription>2025 Edition</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 bg-secondary rounded-full flex items-center justify-center">
-                    <Calendar className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="text-muted-foreground text-sm">
-                      Competition Date
-                    </h3>
-                    <p className="font-medium">June 15 - June 30, 2025</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 bg-secondary rounded-full flex items-center justify-center">
-                    <Award className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="text-muted-foreground text-sm">
-                      Prize Pool
-                    </h3>
-                    <p className="font-medium">₹10,000 + Certificates</p>
-                  </div>
-                </div>
-
-                <Separator className="my-2" />
-
-                <div className="rounded-lg bg-secondary/50 p-3 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-amber-500" />
-                    <strong className="font-medium">Only 5 days left!</strong>
-                  </div>
-                  <p className="mt-1 text-muted-foreground">
-                    Register before June 14 to secure your spot in the
-                    competition.
-                  </p>
-                </div>
-              </CardContent>
-              <CardFooter className="flex flex-col gap-4">
-                <Button
-                  asChild
-                  className="w-full font-medium relative overflow-hidden group"
-                >
-                  <Link href="/register">
-                    <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-primary to-purple-500 group-hover:opacity-90 transition-opacity opacity-80"></span>
-                    <span className="relative z-10 flex items-center justify-center gap-2">
-                      Register Now <ArrowRight className="h-4 w-4" />
-                    </span>
-                  </Link>
-                </Button>
-                <p className="text-center text-muted-foreground text-xs">
-                  Registration closes on June 14, 2025
-                </p>
-              </CardFooter>
-            </Card>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-12 bg-muted/20 relative overflow-hidden border-y border-primary/10">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {stats.map((stat, index) => (
               <motion.div
-                key={index}
-                initial="hidden"
-                animate={statsVisible ? "visible" : "hidden"}
-                variants={counterVariants}
-                transition={{ delay: index * 0.2 }}
-                className={`${stat.bgColor} ${stat.borderColor} border rounded-xl p-6 backdrop-blur-sm shadow-lg`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.6 }}
+                className="relative"
               >
-                <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-xl bg-background/40 backdrop-blur-sm">
-                    {stat.icon}
+                <div className="absolute -left-4 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-600/40 to-purple-600/40 rounded-full"></div>
+                <p className="text-xl text-white/70 leading-relaxed pl-4">
+                  Unleash your creative potential in the ultimate content
+                  writing competition organized by Matrix JEC - the skill
+                  enhancement community of Jabalpur Engineering College.
+                </p>
+              </motion.div>
+            </motion.div>
+
+            <motion.div
+              className="flex flex-wrap gap-4 pt-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.9 }}
+            >
+              <TechButton
+                size="lg"
+                rightIcon={<ArrowRight className="h-5 w-5" />}
+                glowing={true}
+                className="w-full sm:w-auto"
+              >
+                <Link
+                  href="/register"
+                  className="w-full flex items-center justify-center"
+                >
+                  Register Now
+                </Link>
+              </TechButton>
+
+              <TechButton
+                variant="outline"
+                size="lg"
+                className="w-full sm:w-auto"
+              >
+                <Link
+                  href="/guidelines"
+                  className="w-full flex items-center justify-center"
+                >
+                  View Guidelines
+                </Link>
+              </TechButton>
+            </motion.div>
+
+            <motion.div
+              className="grid grid-cols-2 md:grid-cols-4 gap-3"
+              variants={staggerContainer}
+              initial="hidden"
+              animate={statsVisible ? "visible" : "hidden"}
+            >
+              {stats.map((stat, index) => (
+                <motion.div
+                  key={index}
+                  variants={counterVariants}
+                  className={`${stat.bgColor} ${stat.borderColor} border rounded-xl p-4 flex flex-col items-center justify-center text-center`}
+                >
+                  <div className="mb-2">{stat.icon}</div>
+                  <StatCounter
+                    value={stat.value}
+                    textSize="text-2xl md:text-3xl"
+                    color="text-white"
+                    className="font-bold"
+                    animateToValue={statsVisible}
+                  />
+                  <div className="text-xs md:text-sm text-gray-300 mt-1">
+                    {stat.label}
                   </div>
-                  <div>
-                    <h3 className="text-2xl font-bold">{stat.value}</h3>
-                    <p className="text-muted-foreground text-sm">
+                </motion.div>
+              ))}
+            </motion.div>
+          </motion.div>
+
+          {/* Right content - 3D Card with Terminal Display */}
+          <motion.div
+            className="flex-1"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
+            <FloatingElement yOffset={15} duration={3}>
+              <ThreeDCard
+                className="w-full max-w-xl mx-auto overflow-hidden"
+                glareEnabled={true}
+                glareColor="rgba(120, 119, 198, 0.2)"
+                borderColor="rgba(139, 92, 246, 0.3)"
+              >
+                <GlassMorphism className="p-5 backdrop-blur-xl rounded-xl">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Terminal className="h-5 w-5 text-purple-400" />
+                      <span>Competition Details</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-8">
+                    <TerminalDisplay
+                      text="Welcome to Matrix WriteItUp - The premier tech writing competition!"
+                      delay={1000}
+                      className="w-full backdrop-blur-xl"
+                    />
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex flex-col gap-1.5">
+                        <div className="text-xs text-gray-400">Start Date</div>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-blue-400" />
+                          <span className="text-sm">June 15, 2025</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <div className="text-xs text-gray-400">End Date</div>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-purple-400" />
+                          <span className="text-sm">June 30, 2025</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <div className="text-xs text-gray-400">Prize Pool</div>
+                        <div className="flex items-center gap-2">
+                          <Award className="h-4 w-4 text-amber-400" />
+                          <span className="text-sm">₹10,000</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <div className="text-xs text-gray-400">
+                          Participants
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Users className="h-4 w-4 text-green-400" />
+                          <span className="text-sm">500+</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="text-sm flex items-center gap-2">
+                        <BrainCircuit className="h-4 w-4 text-blue-400" />
+                        <span>Topics: Technology, AI, Web Development</span>
+                      </div>
+                      <div className="text-sm flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-purple-400" />
+                        <span>Format: 1500-2000 words article</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <TechButton
+                      variant="cyber"
+                      className="w-full h-12 rounded-xl text-lg font-medium shadow-lg shadow-purple-500/20"
+                      glowing={true}
+                      rightIcon={<ArrowRight className="h-5 w-5" />}
+                    >
+                      <Link
+                        href="/register"
+                        className="w-full flex items-center justify-center"
+                      >
+                        Register Now
+                      </Link>
+                    </TechButton>
+                  </CardFooter>
+                </GlassMorphism>
+              </ThreeDCard>
+            </FloatingElement>
+          </motion.div>
+        </div>{" "}
+      </section>{" "}
+      {/* Stats Section */}
+      <section className="py-24 relative border-t border-b border-white/5">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/5 to-purple-900/5 -z-10"></div>
+        <div className="absolute inset-0 bg-dot-matrix opacity-10 -z-10"></div>
+        <div className="absolute inset-0 overflow-hidden -z-10">
+          <div className="absolute top-1/4 right-1/4 w-[30rem] h-[30rem] rounded-full bg-blue-500/5 blur-[100px]" />
+          <div className="absolute bottom-1/4 left-1/4 w-[20rem] h-[20rem] rounded-full bg-purple-500/5 blur-[80px]" />
+        </div>
+
+        <div className="container mx-auto px-4">
+          <motion.div
+            className="text-center mb-14"
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="text-3xl lg:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+              Competition Statistics
+            </h2>
+            <p className="mt-4 text-lg text-white/70 max-w-2xl mx-auto">
+              Join hundreds of talented writers and tech enthusiasts in this
+              exciting competition
+            </p>
+          </motion.div>
+
+          <motion.div
+            className="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-10"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+          >
+            {stats.map((stat, index) => (
+              <motion.div key={index} variants={popIn} className="relative">
+                <AnimatedGradientBorder
+                  borderWidth="2px"
+                  borderRadius="rounded-xl"
+                  animationDuration={8}
+                  gradientColors={
+                    stat.borderColor
+                      .replace("border-", "from-")
+                      .replace("/30", "/40") + " via-white/10 to-blue-600/30"
+                  }
+                >
+                  <GlassMorphism
+                    className="p-6 h-full flex flex-col items-center justify-center text-center shadow-lg rounded-xl"
+                    blur="lg"
+                  >
+                    <motion.div
+                      className="mb-4 p-4 rounded-2xl bg-gradient-to-br from-black/30 to-black/10 backdrop-blur-md shadow-inner border border-white/5"
+                      whileHover={{
+                        rotate: [0, -5, 5, -5, 0],
+                        scale: 1.05,
+                        transition: { duration: 0.5 },
+                      }}
+                    >
+                      {stat.icon}
+                    </motion.div>
+
+                    <StatCounter
+                      value={stat.value.replace(/\D/g, "")}
+                      suffix={stat.value.includes("+") ? "+" : ""}
+                      prefix={stat.value.startsWith("₹") ? "₹" : ""}
+                      textSize="text-3xl md:text-4xl lg:text-5xl"
+                      color="text-white"
+                      className="font-bold relative"
+                      animateToValue={true}
+                      decimal={0}
+                    />
+                    <p className="text-white/70 mt-3 font-medium">
                       {stat.label}
                     </p>
+                  </GlassMorphism>
+                </AnimatedGradientBorder>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>{" "}
+      {/* Timeline Section */}
+      <section className="py-20 relative overflow-hidden">
+        <div className="absolute inset-0 -z-30">
+          <MatrixRainBackground opacity={0.05} speed={0.5} fontSize={12} />
+        </div>
+        <div className="absolute inset-0 -z-20">
+          <TechBackground particleCount={70} />
+        </div>
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-[120px]" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-600/10 rounded-full blur-[120px]" />
+        </div>
+
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <SectionHeading
+              title={
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-primary to-purple-400">
+                  Competition Timeline
+                </span>
+              }
+              subtitle="Important dates and milestones"
+            />
+          </motion.div>
+
+          <div className="relative mt-20 max-w-4xl mx-auto">
+            {/* Vertical line */}
+            <motion.div
+              className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gradient-to-b from-blue-600/80 via-purple-600/80 to-blue-600/80 rounded-full shadow-[0_0_15px_rgba(139,92,246,0.5)]"
+              initial={{ height: 0 }}
+              whileInView={{ height: "100%" }}
+              viewport={{ once: true }}
+              transition={{ duration: 1.5 }}
+            ></motion.div>
+
+            {/* Timeline events */}
+            {timelineEvents.map((event, index) => (
+              <motion.div
+                key={index}
+                className="relative mb-16"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ delay: index * 0.15, duration: 0.8 }}
+              >
+                <div
+                  className={`flex ${
+                    index % 2 === 0 ? "flex-row" : "flex-row-reverse"
+                  } items-center`}
+                >
+                  <div
+                    className={`w-1/2 px-10 ${
+                      index % 2 === 0 ? "text-right" : "text-left"
+                    }`}
+                  >
+                    {" "}
+                    <GlassMorphism
+                      className={`p-4 ${
+                        index % 2 === 0 ? "ml-auto" : "mr-auto"
+                      } max-w-xs shadow-xl border-white/5`}
+                      blur="md"
+                    >
+                      <h3
+                        className={`text-xl font-bold mb-2 ${
+                          event.status === "active"
+                            ? "bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400"
+                            : ""
+                        }`}
+                      >
+                        {event.title}
+                      </h3>
+                      <p className="text-white/60 text-sm flex items-center gap-2">
+                        <Calendar className="h-3.5 w-3.5 text-primary" />
+                        {event.date}
+                      </p>
+                    </GlassMorphism>
                   </div>
+
+                  <motion.div
+                    className="absolute left-1/2 transform -translate-x-1/2 w-12 h-12 z-10"
+                    whileHover={{ scale: 1.2 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  >
+                    <AnimatedGradientBorder
+                      borderRadius="rounded-full"
+                      gradientColors={
+                        event.status === "active"
+                          ? "from-blue-500 via-primary to-blue-500"
+                          : "from-gray-600 via-gray-500 to-gray-600"
+                      }
+                      borderWidth="3px"
+                      animationDuration={event.status === "active" ? 3 : 0}
+                      containerClassName="h-full w-full"
+                    >
+                      <div className="h-full w-full rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center">
+                        {event.status === "active" ? (
+                          <div className="w-4 h-4 bg-blue-500 rounded-full animate-pulse" />
+                        ) : (
+                          <div className="w-3 h-3 bg-gray-400/70 rounded-full" />
+                        )}
+                      </div>
+                    </AnimatedGradientBorder>
+                  </motion.div>
+
+                  <div className="w-1/2 px-10"></div>
                 </div>
               </motion.div>
             ))}
           </div>
         </div>
-      </section>
-
-      {/* Categories Section */}
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4 space-y-8">
-          <SectionHeading
-            title="Competition Categories"
-            subtitle="Choose from diverse writing categories to showcase your talent"
-          />
-
-          <Tabs defaultValue="article" className="w-full max-w-4xl mx-auto">
-            <TabsList className="grid w-full grid-cols-3 mb-8">
-              <TabsTrigger value="article">Articles</TabsTrigger>
-              <TabsTrigger value="creative">Creative Writing</TabsTrigger>
-              <TabsTrigger value="technical">Technical</TabsTrigger>
-            </TabsList>
-            <TabsContent value="article">
-              <AnimatedGradientBorder
-                borderRadius="rounded-xl"
-                gradientColors="from-blue-600 via-blue-500 to-sky-400"
-                containerClassName="w-full"
-              >
-                <Card className="border-0 bg-black/70 backdrop-blur-md">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <FileText className="h-5 w-5 text-blue-400" />
-                      Article Writing
-                    </CardTitle>
-                    <CardDescription>
-                      Opinion pieces, features, and news articles
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-3">
-                      <li className="flex items-center gap-2">
-                        <div className="h-6 w-6 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-sm">
-                          ✓
-                        </div>
-                        <span>1500-2000 word count limit</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="h-6 w-6 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-sm">
-                          ✓
-                        </div>
-                        <span>Research-backed content required</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="h-6 w-6 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-sm">
-                          ✓
-                        </div>
-                        <span>
-                          Topics include technology, society, environment
-                        </span>
-                      </li>
-                    </ul>
-                  </CardContent>
-                </Card>
-              </AnimatedGradientBorder>
-            </TabsContent>
-
-            <TabsContent value="creative">
-              <AnimatedGradientBorder
-                borderRadius="rounded-xl"
-                gradientColors="from-purple-600 via-violet-500 to-fuchsia-400"
-                containerClassName="w-full"
-              >
-                <Card className="border-0 bg-black/70 backdrop-blur-md">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <FileText className="h-5 w-5 text-purple-400" />
-                      Creative Writing
-                    </CardTitle>
-                    <CardDescription>
-                      Short stories, poetry, and flash fiction
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-3">
-                      <li className="flex items-center gap-2">
-                        <div className="h-6 w-6 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 text-sm">
-                          ✓
-                        </div>
-                        <span>Up to 3000 words for short stories</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="h-6 w-6 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 text-sm">
-                          ✓
-                        </div>
-                        <span>Maximum 30 lines for poetry</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="h-6 w-6 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 text-sm">
-                          ✓
-                        </div>
-                        <span>Free choice of theme and genre</span>
-                      </li>
-                    </ul>
-                  </CardContent>
-                </Card>
-              </AnimatedGradientBorder>
-            </TabsContent>
-
-            <TabsContent value="technical">
-              <AnimatedGradientBorder
-                borderRadius="rounded-xl"
-                gradientColors="from-emerald-600 via-teal-500 to-emerald-400"
-                containerClassName="w-full"
-              >
-                <Card className="border-0 bg-black/70 backdrop-blur-md">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <FileText className="h-5 w-5 text-emerald-400" />
-                      Technical Writing
-                    </CardTitle>
-                    <CardDescription>
-                      Documentation, guides, and technical blogs
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-3">
-                      <li className="flex items-center gap-2">
-                        <div className="h-6 w-6 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-sm">
-                          ✓
-                        </div>
-                        <span>2000-2500 word count limit</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="h-6 w-6 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-sm">
-                          ✓
-                        </div>
-                        <span>Clear explanations of complex topics</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="h-6 w-6 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-sm">
-                          ✓
-                        </div>
-                        <span>Diagrams and visual aids encouraged</span>
-                      </li>
-                    </ul>
-                  </CardContent>
-                </Card>
-              </AnimatedGradientBorder>
-            </TabsContent>
-          </Tabs>
+      </section>{" "}
+      {/* Top Entries Section with Tab Navigation */}
+      <section className="py-24 relative border-t border-white/5">
+        <div className="absolute inset-0 bg-black/30 -z-30" />
+        <div className="absolute inset-0 -z-20">
+          <MatrixRainBackground opacity={0.08} speed={0.8} fontSize={14} />
         </div>
-      </section>
+        <div className="absolute inset-0 -z-10">
+          <TechBackground particleCount={60} />
+        </div>
 
-      {/* Features Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4 space-y-8">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col items-center justify-center mb-16">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <Badge className="mb-4 bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 border-amber-500/30 px-4 py-2 rounded-full flex items-center gap-2 shadow-lg backdrop-blur-sm">
+                <TrendingUp className="h-4 w-4 text-amber-300" />
+                <span>Most Popular Submissions</span>
+              </Badge>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              <SectionHeading
+                title={
+                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-300 to-orange-400">
+                    Top Entries
+                  </span>
+                }
+                subtitle="Check out the highest voted submissions in our competition"
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="w-full max-w-lg mt-10"
+            >
+              <GlassMorphism className="p-1 rounded-full backdrop-blur-lg">
+                <Tabs defaultValue="top" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 bg-transparent p-1">
+                    <TabsTrigger
+                      value="top"
+                      className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white transition-all duration-300 py-2.5"
+                    >
+                      <Award className="h-4 w-4 mr-2" /> Top 5 Entries
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="recent"
+                      className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white transition-all duration-300 py-2.5"
+                    >
+                      <Clock className="h-4 w-4 mr-2" /> Recent Entries
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="top">
+                    {loadingEntries ? (
+                      <div className="flex justify-center items-center py-16">
+                        <div className="animate-pulse rounded-full h-16 w-16 bg-primary/20 flex items-center justify-center">
+                          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+                        </div>
+                      </div>
+                    ) : topEntries.length === 0 ? (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="text-center py-16 bg-black/30 backdrop-blur-sm rounded-xl border border-white/10"
+                      >
+                        <FileText className="w-12 h-12 mx-auto mb-4 text-primary opacity-80" />
+                        <h3 className="text-2xl font-bold mb-2">
+                          No Entries Yet
+                        </h3>
+                        <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                          Be the first to submit your entry to the competition!
+                        </p>
+                        <Link href="/register">
+                          <Button className="px-6 rounded-full">
+                            Submit Entry
+                          </Button>
+                        </Link>
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        className="grid gap-6 pt-6"
+                        variants={containerVariants}
+                        initial="hidden"
+                        animate="visible"
+                      >
+                        <Carousel>
+                          <CarouselContent>
+                            {topEntries.map((entry, index) => (
+                              <CarouselItem
+                                key={entry.id}
+                                className="md:basis-1/2"
+                              >
+                                <motion.div variants={fadeInUp}>
+                                  <div className="relative p-0.5">
+                                    <div className="absolute -right-3 -top-3 w-9 h-9 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold z-10 text-sm">
+                                      #{index + 1}
+                                    </div>
+                                    <EntryCard
+                                      entry={{
+                                        ...entry,
+                                        featured: index === 0,
+                                      }}
+                                      user={user}
+                                      hasVoted={hasVoted}
+                                      votingFor={votingFor}
+                                      handleVote={handleVote}
+                                      className={
+                                        index === 0
+                                          ? "border-2 border-accent/30"
+                                          : ""
+                                      }
+                                    />
+                                  </div>
+                                </motion.div>
+                              </CarouselItem>
+                            ))}
+                          </CarouselContent>
+                          <div className="hidden md:flex">
+                            <CarouselPrevious className="mt-32" />
+                            <CarouselNext className="mt-32" />
+                          </div>
+                        </Carousel>
+
+                        <div className="flex justify-center mt-8">
+                          <Link href="/entries">
+                            <Button
+                              variant="outline"
+                              className="gap-2 rounded-full"
+                            >
+                              View All Entries
+                              <ArrowRight className="h-4 w-4" />
+                            </Button>
+                          </Link>
+                        </div>
+                      </motion.div>
+                    )}
+                  </TabsContent>
+                  <TabsContent value="recent">
+                    {loadingEntries ? (
+                      <div className="flex justify-center items-center py-16">
+                        <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full"></div>
+                      </div>
+                    ) : (
+                      <motion.div
+                        className="grid gap-6 pt-6"
+                        variants={containerVariants}
+                        initial="hidden"
+                        animate="visible"
+                      >
+                        <Carousel>
+                          <CarouselContent>
+                            {entries.slice(0, 8).map((entry, index) => (
+                              <CarouselItem
+                                key={entry.id}
+                                className="md:basis-1/2"
+                              >
+                                <motion.div variants={fadeInUp}>
+                                  <EntryCard
+                                    entry={entry}
+                                    user={user}
+                                    hasVoted={hasVoted}
+                                    votingFor={votingFor}
+                                    handleVote={handleVote}
+                                  />
+                                </motion.div>
+                              </CarouselItem>
+                            ))}
+                          </CarouselContent>
+                          <div className="hidden md:flex">
+                            <CarouselPrevious className="mt-32" />
+                            <CarouselNext className="mt-32" />
+                          </div>
+                        </Carousel>
+
+                        <div className="flex justify-center mt-8">
+                          <Link href="/entries">
+                            <Button
+                              variant="outline"
+                              className="gap-2 rounded-full"
+                            >
+                              View All Entries
+                              <ArrowRight className="h-4 w-4" />
+                            </Button>
+                          </Link>
+                        </div>
+                      </motion.div>
+                    )}
+                  </TabsContent>{" "}
+                </Tabs>
+              </GlassMorphism>
+            </motion.div>
+          </div>
+        </div>
+      </section>{" "}
+      {/* Features section */}
+      <section className="py-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-small-white/5 -z-10" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/10 rounded-full blur-[120px] -z-10" />
+        <div className="absolute bottom-0 left-0 w-72 h-72 bg-blue-500/10 rounded-full blur-[100px] -z-10" />
+        <div className="container mx-auto px-4 space-y-12">
           <SectionHeading
             title="Why Participate?"
             subtitle="Benefits of joining Matrix WriteItUp competition"
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <AnimatedCard
-              className="border bg-card/50 backdrop-blur-sm"
-              whileHover={{ y: -8, transition: { duration: 0.2 } }}
-            >
-              <CardHeader>
-                <div className="h-12 w-12 bg-blue-600/10 rounded-lg flex items-center justify-center mb-4">
-                  <Sparkles className="h-6 w-6 text-blue-500" />
-                </div>
-                <CardTitle>Showcase Your Talent</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Display your writing skills to a wider audience and gain
-                  recognition among peers and industry professionals.
-                </p>
-              </CardContent>
-            </AnimatedCard>
-
-            <AnimatedCard
-              className="border bg-card/50 backdrop-blur-sm"
-              whileHover={{ y: -8, transition: { duration: 0.2 } }}
-            >
-              <CardHeader>
-                <div className="h-12 w-12 bg-purple-600/10 rounded-lg flex items-center justify-center mb-4">
-                  <FileText className="h-6 w-6 text-purple-500" />
-                </div>
-                <CardTitle>Expert Feedback</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Receive valuable feedback from industry experts and
-                  experienced writers to improve your skills.
-                </p>
-              </CardContent>
-            </AnimatedCard>
-
-            <AnimatedCard
-              className="border bg-card/50 backdrop-blur-sm"
-              whileHover={{ y: -8, transition: { duration: 0.2 } }}
-            >
-              <CardHeader>
-                <div className="h-12 w-12 bg-green-600/10 rounded-lg flex items-center justify-center mb-4">
-                  <Globe className="h-6 w-6 text-green-500" />
-                </div>
-                <CardTitle>Networking Opportunities</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Connect with like-minded individuals and build relationships
-                  that can help in your professional journey.
-                </p>
-              </CardContent>
-            </AnimatedCard>
-          </div>
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
+          >
+            {keyFeatures.map((feature, index) => (
+              <motion.div key={index} variants={popIn}>
+                <ThreeDCard
+                  className="h-full bg-black/40 backdrop-blur-sm rounded-xl overflow-hidden"
+                  glareEnabled={true}
+                  glareColor="rgba(255, 255, 255, 0.1)"
+                  borderColor="rgba(255, 255, 255, 0.1)"
+                >
+                  <CardHeader>
+                    <AnimatedGradientBorder
+                      borderWidth="2px"
+                      borderRadius="rounded-xl"
+                      containerClassName="w-fit"
+                      gradientColors={`${feature.color} via-white/20`}
+                    >
+                      <div
+                        className={`h-14 w-14 bg-gradient-to-br ${feature.color} rounded-lg flex items-center justify-center`}
+                      >
+                        <motion.div
+                          animate={{
+                            rotate: [0, 5, -5, 0],
+                            scale: [1, 1.1, 1],
+                          }}
+                          transition={{
+                            duration: 4,
+                            repeat: Infinity,
+                            repeatType: "reverse",
+                            delay: index * 0.2,
+                          }}
+                        >
+                          {feature.icon}
+                        </motion.div>
+                      </div>
+                    </AnimatedGradientBorder>
+                    <CardTitle className="mt-4 text-xl font-bold">
+                      {feature.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-white/70">{feature.description}</p>
+                  </CardContent>
+                  <CardFooter className="pt-2">
+                    <TechButton
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-center"
+                      rightIcon={<ChevronRight className="h-4 w-4" />}
+                    >
+                      Learn more
+                    </TechButton>
+                  </CardFooter>
+                </ThreeDCard>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
       </section>
-
-      {/* Featured Entries Section */}
-      <section className="py-16 bg-muted/30 relative overflow-hidden">
+      {/* Testimonial/Quote Section */}
+      <section className="py-16 bg-muted/20 relative overflow-hidden">
         <div className="absolute inset-0 -z-10">
+          <div className="absolute inset-0 bg-dot-matrix opacity-20" />
+        </div>
+        <div className="container mx-auto px-4 max-w-4xl">
+          <motion.div
+            className="text-center relative"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            {" "}
+            <div className="text-6xl font-serif text-primary/40 absolute top-0 left-0">
+              &ldquo;
+            </div>
+            <div className="text-6xl font-serif text-primary/40 absolute bottom-0 right-4">
+              &rdquo;
+            </div>
+            <blockquote className="text-xl md:text-2xl italic px-12 py-8">
+              Writing is the painting of the voice. Matrix WriteItUp provides
+              the canvas for students to express their thoughts and showcase
+              their writing talent to the world.
+            </blockquote>
+            <div className="mt-6 flex items-center justify-center">
+              <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-white font-bold text-xl">
+                M
+              </div>
+              <div className="ml-4 text-left">
+                <p className="font-semibold">Prof. Rajesh Kumar</p>
+                <p className="text-sm text-muted-foreground">
+                  Faculty Coordinator, Matrix JEC
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>{" "}
+      {/* CTA Section */}
+      <section className="py-24 relative overflow-hidden border-t border-primary/10">
+        <div className="absolute inset-0 -z-30">
           <TechBackground particleCount={40} />
         </div>
-        <div className="container mx-auto px-4 space-y-8">
-          <SectionHeading
-            title="Featured Entries"
-            subtitle="Check out some of the top submissions in our competition"
-          />
-
-          {loadingEntries && (
-            <div className="flex justify-center py-12">
-              <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-            </div>
-          )}
-
-          {!loadingEntries && featuredEntries.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-              {featuredEntries.map((entry, index) => (
-                <AnimatedCard
-                  key={entry.id}
-                  className="bg-card/70 backdrop-blur-sm border border-primary/10 rounded-xl overflow-hidden shadow-lg"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{
-                    y: -8,
-                    boxShadow:
-                      "0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1)",
-                    transition: { duration: 0.2 },
-                  }}
-                >
-                  <div className="p-6 h-full flex flex-col">
-                    <div className="flex justify-between mb-4">
-                      <div className="flex-1">
-                        <h3 className="text-xl font-bold mb-2 line-clamp-1">
-                          {entry.title}
-                        </h3>
-                        <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-                          <div className="flex items-center gap-1.5">
-                            <GraduationCap className="h-3.5 w-3.5" />
-                            <span>{entry.year}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <FileText className="h-3.5 w-3.5" />
-                            <span>{entry.branch}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-red-500">
-                        <Heart className="h-4 w-4 fill-current" />
-                        <span className="font-semibold">{entry.votes}</span>
-                      </div>
-                    </div>
-
-                    <p className="text-muted-foreground text-sm line-clamp-3 mb-4 flex-grow">
-                      {truncateContent(entry.content)}
-                    </p>
-
-                    <div className="flex justify-between items-center mt-6 pt-4 border-t border-muted/20">
-                      <div className="text-xs text-muted-foreground flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5" />
-                        {entry.createdAt
-                          ? new Date(entry.createdAt).toLocaleDateString()
-                          : "Recently"}
-                      </div>
-                      <Link href="/entries">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-xs border-primary/20 hover:bg-primary/5 flex items-center gap-1.5"
-                        >
-                          Read more <ArrowRight className="h-3.5 w-3.5" />
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                </AnimatedCard>
-              ))}
-            </div>
-          )}
-
-          {!loadingEntries && featuredEntries.length === 0 && (
-            <motion.div
-              className="text-center py-12 max-w-lg mx-auto bg-card/50 backdrop-blur-sm rounded-xl border border-primary/10 shadow-lg p-8"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="text-6xl mb-4">✨</div>
-              <h3 className="text-2xl font-bold mb-2">
-                Submissions Coming Soon
-              </h3>
-              <p className="text-muted-foreground mb-6">
-                Be among the first to submit your entry in the competition!
-              </p>
-              <AnimatedGradientBorder
-                borderRadius="rounded-md"
-                gradientColors="from-primary via-purple-500 to-indigo-500"
-                containerClassName="inline-block"
-              >
-                <Button className="bg-transparent" asChild>
-                  <Link href="/register" className="flex items-center gap-2">
-                    Register Now <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </AnimatedGradientBorder>
-            </motion.div>
-          )}
-
-          {!loadingEntries && featuredEntries.length > 0 && (
-            <motion.div
-              className="text-center mt-10"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              <Button
-                variant="outline"
-                size="lg"
-                className="border-primary/20 hover:bg-primary/5 flex items-center gap-2"
-                asChild
-              >
-                <Link href="/entries">
-                  View All Entries <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            </motion.div>
-          )}
+        <div className="absolute inset-0 -z-20">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-full blur-[120px]" />
         </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-16 relative overflow-hidden border-t border-primary/10">
-        <div className="absolute inset-0 bg-grid-small-white/[0.2] -z-10" />
-        <motion.div
-          className="absolute inset-0 -z-10"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.5 }}
-          transition={{ delay: 0.5, duration: 1 }}
-        >
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[80px]" />
-        </motion.div>
-
-        <div className="container mx-auto px-4 text-center max-w-3xl space-y-6">
-          <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 px-3 py-1.5 flex items-center gap-2 mx-auto w-fit">
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>Limited Spots Available</span>
-          </Badge>
-
-          <h2 className="text-3xl md:text-4xl font-bold">
-            Ready to showcase your writing talent?
-          </h2>
-
-          <p className="text-muted-foreground text-lg">
-            Join Matrix WriteItUp 2025 and take your first step towards becoming
-            a recognized writer.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <AnimatedGradientBorder
-                borderRadius="rounded-lg"
-                gradientColors="from-blue-600 via-purple-600 to-indigo-600"
-              >
-                <Button
-                  asChild
-                  size="lg"
-                  className="font-medium bg-transparent border-0"
-                >
-                  <Link
-                    href="/register"
-                    className="flex items-center gap-2 px-6"
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm -z-10"></div>
+        <div className="container mx-auto px-4 py-10">
+          <div className="max-w-5xl mx-auto">
+            <ThreeDCard
+              className="overflow-hidden"
+              glareEnabled={true}
+              glareColor="rgba(139, 92, 246, 0.15)"
+              borderColor="rgba(139, 92, 246, 0.2)"
+            >
+              <GlassMorphism className="p-10 backdrop-blur-xl rounded-xl">
+                <div className="text-center space-y-8">
+                  <motion.div
+                    initial={{ scale: 0, opacity: 0 }}
+                    whileInView={{ scale: 1, opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, type: "spring" }}
+                    className="mx-auto"
                   >
-                    Register Now <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </AnimatedGradientBorder>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="border-primary/20 hover:bg-primary/5"
-              >
-                <Link href="/guidelines">View Guidelines</Link>
-              </Button>
-            </motion.div>
+                    <Badge className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 border-amber-500/30 px-5 py-2.5 rounded-full flex items-center gap-2.5 mx-auto w-fit shadow-lg backdrop-blur-sm">
+                      <motion.div
+                        animate={{
+                          scale: [1, 1.2, 1],
+                          rotate: [0, 5, -5, 0],
+                        }}
+                        transition={{
+                          duration: 3,
+                          repeat: Infinity,
+                          repeatType: "reverse",
+                        }}
+                      >
+                        <Flame className="h-5 w-5 text-amber-300" />
+                      </motion.div>
+                      <span className="text-base">Limited Spots Available</span>
+                    </Badge>
+                  </motion.div>
+
+                  <div className="space-y-4">
+                    <AnimatedGradientBorder
+                      borderRadius="rounded-lg"
+                      containerClassName="inline-flex mx-auto"
+                      borderWidth="2px"
+                      gradientColors="from-blue-600 via-purple-600 to-blue-600"
+                      animationDuration={6}
+                    >
+                      <motion.h2
+                        className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-300% animate-gradient-fast px-6 py-2"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6 }}
+                      >
+                        Ready to showcase your writing talent?
+                      </motion.h2>
+                    </AnimatedGradientBorder>{" "}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.6, delay: 0.2 }}
+                    >
+                      <TerminalDisplay
+                        text="Join Matrix WriteItUp today and be part of the most exciting tech writing competition. Limited spots available!"
+                        className="max-w-2xl mx-auto my-8"
+                      />
+                    </motion.div>
+                    <motion.div
+                      className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-6"
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.6, delay: 0.4 }}
+                    >
+                      <TechButton
+                        size="lg"
+                        variant="matrix"
+                        className="w-full sm:w-auto px-10 py-6 text-lg font-semibold"
+                        glowing={true}
+                        rightIcon={<ArrowRight className="h-5 w-5" />}
+                      >
+                        <Link
+                          href="/register"
+                          className="w-full flex items-center justify-center"
+                        >
+                          Register Now
+                        </Link>
+                      </TechButton>
+                      <TechButton
+                        variant="ghost"
+                        size="lg"
+                        className="w-full sm:w-auto px-8 py-6 text-lg font-semibold"
+                      >
+                        <Link
+                          href="/guidelines"
+                          className="w-full flex items-center justify-center"
+                        >
+                          View Guidelines
+                        </Link>
+                      </TechButton>
+                    </motion.div>
+                    <motion.div
+                      className="pt-12"
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.6 }}
+                    >
+                      <p className="text-sm text-white/60 flex items-center justify-center gap-2">
+                        {" "}
+                        <Clock className="h-4 w-4" />
+                        Competition starts on June 15, 2025
+                      </p>
+                    </motion.div>
+                  </div>
+                </div>
+              </GlassMorphism>
+            </ThreeDCard>
           </div>
-        </div>
+        </div>{" "}
       </section>
     </main>
   );

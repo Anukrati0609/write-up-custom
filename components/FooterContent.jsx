@@ -16,21 +16,28 @@ import {
   BadgeIcon,
   TechCircleIcon,
 } from "@/components/icons";
-import { Github, Twitter, Linkedin, Instagram, Heart } from "lucide-react";
+import {
+  Github,
+  Twitter,
+  Linkedin,
+  Instagram,
+  Heart,
+  Sparkles,
+} from "lucide-react";
 import AnimatedGradientBorder from "./ui/animated-gradient-border";
 
 const SocialLink = ({ href, icon: Icon, label }) => {
-    return (
-        <a
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="h-9 w-9 rounded-full bg-accent/50 hover:bg-accent flex items-center justify-center transition-colors group"
-            aria-label={label}
-        >
-            <Icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-        </a>
-    );
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="h-9 w-9 rounded-full bg-accent/50 hover:bg-accent flex items-center justify-center transition-colors group"
+      aria-label={label}
+    >
+      <Icon className="h-4 w-4 text-foreground/80 group-hover:text-primary transition-colors" />
+    </a>
+  );
 };
 
 const FooterContent = () => {
@@ -49,10 +56,16 @@ const FooterContent = () => {
               className="text-white relative z-10 transition-transform duration-300 group-hover:scale-110"
               priority
             />
-          </div>
+          </div>{" "}
           <div>
-            <h3 className="font-bold text-xl text-foreground bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
-              Matrix WriteItUp
+            <h3 className="font-bold text-xl text-foreground">
+              <span className="relative inline-block">
+                Matrix{" "}
+                
+              </span>
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400">
+                WriteItUp
+              </span>
             </h3>
             <div className="flex items-center gap-1.5 mt-1">
               <span className="h-1.5 w-1.5 rounded-full bg-primary/60"></span>
@@ -78,33 +91,6 @@ const FooterContent = () => {
               Register
             </FooterLink>
           </FooterSection>
-
-          <FooterSection title="Resources">
-            <FooterLink href="#" delay={0.2}>
-              Community
-            </FooterLink>
-            <FooterLink href="#" delay={0.3}>
-              Past Competitions
-            </FooterLink>
-            <FooterLink href="#" delay={0.4}>
-              FAQs
-            </FooterLink>
-            <FooterLink href="#" delay={0.5}>
-              Contact Us
-            </FooterLink>
-          </FooterSection>
-
-          <FooterSection title="Legal">
-            <FooterLink href="#" delay={0.3}>
-              Privacy Policy
-            </FooterLink>
-            <FooterLink href="#" delay={0.4}>
-              Terms of Service
-            </FooterLink>
-            <FooterLink href="#" delay={0.5}>
-              Cookie Policy
-            </FooterLink>
-          </FooterSection>
         </div>
       </div>
 
@@ -115,9 +101,9 @@ const FooterContent = () => {
               href="https://github.com/Matrix-JEC"
               icon={Github}
               label="GitHub"
-            />
+            />{" "}
             <SocialLink
-              href="www.linkedin.com/in/matrix-jec-2574412ab"
+              href="https://www.linkedin.com/in/matrix-jec-2574412ab"
               icon={Linkedin}
               label="LinkedIn"
             />
@@ -126,26 +112,24 @@ const FooterContent = () => {
               icon={Instagram}
               label="Instagram"
             />
-          </div>
-
+          </div>{" "}
           <AnimatedGradientBorder
             className="px-4 py-1.5 text-xs text-center md:text-right"
             borderRadius="rounded-full"
             gradientColors="from-blue-500 via-purple-500 to-pink-500"
           >
-            <p className="flex items-center justify-center gap-1.5">
+            <p className="flex items-center justify-center gap-1.5 text-foreground/90 font-medium">
               Designed & Developed with
               <Heart className="h-3 w-3 text-red-500 fill-red-500" />
               by Matrix JEC Tech Team
             </p>
           </AnimatedGradientBorder>
-
           <div className="backdrop-blur-sm bg-background/30 px-4 py-2.5 rounded-xl border border-slate-200/10 shadow-sm">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-foreground/90">
               © {new Date().getFullYear()} Matrix JEC - Skill Enhancement
               Community
             </p>
-            <p className="text-xs text-muted-foreground/70 mt-1 flex items-center justify-end gap-1">
+            <p className="text-xs text-foreground/80 mt-1 flex items-center justify-end gap-1">
               <span className="inline-block h-3 w-3 rounded-full bg-gradient-to-br from-primary to-purple-600 opacity-70"></span>
               Jabalpur Engineering College
             </p>

@@ -5,7 +5,7 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 export async function POST(request) {
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const adminToken = cookieStore.get("admin_token")?.value;
 
     if (adminToken) {
@@ -24,9 +24,6 @@ export async function POST(request) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Admin logout error:", error);
-    return NextResponse.json(
-      { error: "Logout failed" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Logout failed" }, { status: 500 });
   }
 }

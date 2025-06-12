@@ -46,7 +46,7 @@ async function initializeCollections() {
 
 // Function to validate admin session
 async function validateAdminSession(request) {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const sessionToken = cookieStore.get("admin_token")?.value;
 
   if (!sessionToken) {
@@ -73,7 +73,7 @@ async function validateAdminSession(request) {
   return {
     id: adminDoc.id,
     email: admin.email,
-    name: admin.name || admin.email.split('@')[0],
+    name: admin.name || admin.email.split("@")[0],
     role: admin.role || "admin",
   };
 }
@@ -84,10 +84,7 @@ export async function GET(request) {
     // Validate admin session
     const admin = await validateAdminSession(request);
     if (!admin) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -108,12 +105,12 @@ export async function GET(request) {
                 id: docSnap.id,
                 ...docSnap.data(),
                 createdAt:
-                  docSnap.data().createdAt?.toDate?.()?.toISOString() || 
-                  docSnap.data().createdAt || 
+                  docSnap.data().createdAt?.toDate?.()?.toISOString() ||
+                  docSnap.data().createdAt ||
                   null,
                 updatedAt:
-                  docSnap.data().updatedAt?.toDate?.()?.toISOString() || 
-                  docSnap.data().updatedAt || 
+                  docSnap.data().updatedAt?.toDate?.()?.toISOString() ||
+                  docSnap.data().updatedAt ||
                   null,
               })),
             };
@@ -130,15 +127,17 @@ export async function GET(request) {
       case "entries":
         // Get all entries with detailed information
         const entriesSnapshot = await getDocs(collection(db, "entries"));
-        const entries = entriesSnapshot.docs.map(docSnap => ({
+        const entries = entriesSnapshot.docs.map((docSnap) => ({
           id: docSnap.id,
           ...docSnap.data(),
-          createdAt: docSnap.data().createdAt?.toDate?.()?.toISOString() || 
-                    docSnap.data().createdAt || 
-                    null,
-          updatedAt: docSnap.data().updatedAt?.toDate?.()?.toISOString() || 
-                    docSnap.data().updatedAt || 
-                    null,
+          createdAt:
+            docSnap.data().createdAt?.toDate?.()?.toISOString() ||
+            docSnap.data().createdAt ||
+            null,
+          updatedAt:
+            docSnap.data().updatedAt?.toDate?.()?.toISOString() ||
+            docSnap.data().updatedAt ||
+            null,
         }));
 
         return NextResponse.json({
@@ -147,16 +146,19 @@ export async function GET(request) {
         });
 
       case "users":
-        // Get all users
+        // Get all users with detailed information
         const usersSnapshot = await getDocs(collection(db, "users"));
-        const users = usersSnapshot.docs.map(docSnap => ({
+        const users = usersSnapshot.docs.map((docSnap) => ({
+          uid: docSnap.id,
           ...docSnap.data(),
-          createdAt: docSnap.data().createdAt?.toDate?.()?.toISOString() || 
-                    docSnap.data().createdAt || 
-                    null,
-          updatedAt: docSnap.data().updatedAt?.toDate?.()?.toISOString() || 
-                    docSnap.data().updatedAt || 
-                    null,
+          createdAt:
+            docSnap.data().createdAt?.toDate?.()?.toISOString() ||
+            docSnap.data().createdAt ||
+            null,
+          updatedAt:
+            docSnap.data().updatedAt?.toDate?.()?.toISOString() ||
+            docSnap.data().updatedAt ||
+            null,
         }));
 
         return NextResponse.json({
@@ -167,29 +169,41 @@ export async function GET(request) {
       case "settings":
         // Get application settings
         const settingsSnapshot = await getDocs(collection(db, "settings"));
-        let settings = {};
-        
+        let settings = null;
+
         if (!settingsSnapshot.empty) {
-          const configDoc = settingsSnapshot.docs.find(doc => doc.id === "config");
-          if (configDoc) {
-            settings = configDoc.data();
-          } else {
-            // If there's no config document, create default settings
-            settings = {
-              votingEnabled: true,
-              submissionEnabled: true,
-              updatedAt: Date.now(),
-            };
-            await setDoc(doc(db, "settings", "config"), settings);
-          }
-        } else {
-          // Create settings collection and default config if it doesn't exist
+          // Get the first settings document
+          const settingsDoc = settingsSnapshot.docs[0];
           settings = {
+            id: settingsDoc.id,
+            ...settingsDoc.data(),
+            createdAt:
+              settingsDoc.data().createdAt?.toDate?.()?.toISOString() ||
+              settingsDoc.data().createdAt ||
+              null,
+            updatedAt:
+              settingsDoc.data().updatedAt?.toDate?.()?.toISOString() ||
+              settingsDoc.data().updatedAt ||
+              null,
+          };
+        } else {
+          // Create default settings if none exist
+          const defaultSettings = {
             votingEnabled: true,
             submissionEnabled: true,
-            updatedAt: Date.now(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
           };
-          await setDoc(doc(db, "settings", "config"), settings);
+
+          const settingsRef = doc(collection(db, "settings"));
+          await setDoc(settingsRef, defaultSettings);
+
+          settings = {
+            id: settingsRef.id,
+            ...defaultSettings,
+            createdAt: defaultSettings.createdAt.toISOString(),
+            updatedAt: defaultSettings.updatedAt.toISOString(),
+          };
         }
 
         return NextResponse.json({
@@ -198,8 +212,9 @@ export async function GET(request) {
         });
 
       case "entry":
-        // Get a specific entry by ID
+        // Get single entry by ID
         const entryId = searchParams.get("id");
+
         if (!entryId) {
           return NextResponse.json(
             { error: "Entry ID is required" },
@@ -220,12 +235,14 @@ export async function GET(request) {
         const entry = {
           id: entryDocSnap.id,
           ...entryDocSnap.data(),
-          createdAt: entryDocSnap.data().createdAt?.toDate?.()?.toISOString() || 
-                   entryDocSnap.data().createdAt || 
-                   null,
-          updatedAt: entryDocSnap.data().updatedAt?.toDate?.()?.toISOString() || 
-                   entryDocSnap.data().updatedAt || 
-                   null,
+          createdAt:
+            entryDocSnap.data().createdAt?.toDate?.()?.toISOString() ||
+            entryDocSnap.data().createdAt ||
+            null,
+          updatedAt:
+            entryDocSnap.data().updatedAt?.toDate?.()?.toISOString() ||
+            entryDocSnap.data().updatedAt ||
+            null,
         };
 
         return NextResponse.json({
@@ -257,14 +274,11 @@ export async function POST(request) {
     // Validate admin session
     const admin = await validateAdminSession(request);
     if (!admin) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const requestBody = await request.json();
-    const { action, data } = requestBody;
+    const { action } = requestBody;
 
     switch (action) {
       case "initialize":
@@ -275,70 +289,8 @@ export async function POST(request) {
           results,
         });
 
-      case "reset":
-        // Reset specific collections (be careful with this)
-        const collections = requestBody.collections;
-
-        if (!collections || !Array.isArray(collections)) {
-          return NextResponse.json(
-            {
-              error: "Collections array is required for reset action",
-            },
-            { status: 400 }
-          );
-        }
-        
-        const resetResults = [];
-        for (const collectionName of collections) {
-          try {
-            const batch = writeBatch(db);
-            const snapshot = await getDocs(collection(db, collectionName));
-
-            snapshot.docs.forEach((docSnap) => {
-              batch.delete(docSnap.ref);
-            });
-
-            await batch.commit();
-            resetResults.push({ collection: collectionName, status: "cleared" });
-          } catch (error) {
-            resetResults.push({
-              collection: collectionName,
-              status: "error",
-              error: error.message,
-            });
-          }
-        }
-
-        return NextResponse.json({
-          success: true,
-          message: "Collections reset completed",
-          results: resetResults,
-        });
-
-      case "updateSettings":
-        // Update application settings
-        const settings = requestBody.settings;
-
-        if (!settings) {
-          return NextResponse.json(
-            { error: "Settings object is required" },
-            { status: 400 }
-          );
-        }
-
-        // Add update timestamp
-        settings.updatedAt = Date.now();
-
-        await setDoc(doc(db, "settings", "config"), settings, { merge: true });
-
-        return NextResponse.json({
-          success: true,
-          message: "Settings updated successfully",
-          settings,
-        });
-
       case "updateEntryStatus":
-        // Update entry status (approve/reject)
+        // Update an entry's status (approve/reject)
         const { entryId, status } = requestBody;
 
         if (!entryId || !status) {
@@ -348,22 +300,112 @@ export async function POST(request) {
           );
         }
 
+        // Valid status values
+        if (!["pending", "approved", "rejected"].includes(status)) {
+          return NextResponse.json(
+            { error: "Invalid status value" },
+            { status: 400 }
+          );
+        }
+
         const entryRef = doc(db, "entries", entryId);
+        const entrySnap = await getDoc(entryRef);
+
+        if (!entrySnap.exists()) {
+          return NextResponse.json(
+            { error: "Entry not found" },
+            { status: 404 }
+          );
+        }
+
+        // Update the entry status
         await updateDoc(entryRef, {
           status,
-          updatedAt: Date.now(),
-          updatedBy: admin.id
+          updatedAt: new Date(),
+          reviewedBy: admin.id,
+          reviewedAt: new Date(),
         });
 
         return NextResponse.json({
           success: true,
-          message: `Entry status updated to ${status}`,
+          message: `Entry status updated to '${status}'`,
+        });
+
+      case "updateSettings":
+        // Update application settings
+        const { settings } = requestBody;
+
+        if (!settings) {
+          return NextResponse.json(
+            { error: "Settings object is required" },
+            { status: 400 }
+          );
+        }
+
+        // Get the settings collection
+        const settingsSnapshot = await getDocs(collection(db, "settings"));
+        let settingsRef;
+
+        if (settingsSnapshot.empty) {
+          // Create new settings document if none exists
+          settingsRef = doc(collection(db, "settings"));
+        } else {
+          // Use the first settings document
+          settingsRef = doc(db, "settings", settingsSnapshot.docs[0].id);
+        }
+
+        // Update or create settings
+        const updatedSettings = {
+          ...settings,
+          updatedAt: new Date(),
+          updatedBy: admin.id,
+        };
+
+        await setDoc(settingsRef, updatedSettings, { merge: true });
+
+        return NextResponse.json({
+          success: true,
+          settings: {
+            id: settingsRef.id,
+            ...updatedSettings,
+            updatedAt: updatedSettings.updatedAt.toISOString(),
+          },
+        });
+
+      case "deleteEntry":
+        // Delete an entry
+        const { entryIdToDelete } = requestBody;
+
+        if (!entryIdToDelete) {
+          return NextResponse.json(
+            { error: "Entry ID is required" },
+            { status: 400 }
+          );
+        }
+
+        const entryToDeleteRef = doc(db, "entries", entryIdToDelete);
+        const entryToDeleteSnap = await getDoc(entryToDeleteRef);
+
+        if (!entryToDeleteSnap.exists()) {
+          return NextResponse.json(
+            { error: "Entry not found" },
+            { status: 404 }
+          );
+        }
+
+        // Delete the entry
+        await deleteDoc(entryToDeleteRef);
+
+        return NextResponse.json({
+          success: true,
+          message: "Entry deleted successfully",
         });
 
       default:
         return NextResponse.json(
           {
-            error: "Invalid action",
+            success: false,
+            error: "Invalid action parameter",
           },
           { status: 400 }
         );

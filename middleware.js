@@ -1,38 +1,42 @@
 import { NextResponse } from "next/server";
 import { get } from "@vercel/edge-config";
 
-export const config = { 
+export const config = {
   matcher: [
-    '/api/:path*',
-    '/entries/:path*',
-    '/register/:path*',
-    '/admin/:path*'
-  ]
+    "/api/:path*",
+    "/entries/:path*",
+    "/register/:path*",
+    "/admin/:path*",
+  ],
 };
 
 export async function middleware(request) {
   const { pathname } = request.nextUrl;
-  
+
   // Skip middleware for certain paths including auth-related endpoints
-  if (pathname.startsWith('/api/auth') || pathname.startsWith('/_next')) {
+  if (pathname.startsWith("/api/auth") || pathname.startsWith("/_next")) {
     return NextResponse.next();
   }
-  
+
   // Admin routes protection
-  if (pathname.startsWith('/admin') && pathname !== '/admin/login' && pathname !== '/admin/register') {
+  if (
+    pathname.startsWith("/admin") &&
+    pathname !== "/admin/login" &&
+    pathname !== "/admin/register"
+  ) {
     // Check for admin session cookie or token
-    const adminToken = request.cookies.get('admin_token')?.value;
-    
+    const adminToken = request.cookies.get("admin_token")?.value;
+
     if (!adminToken) {
       // Redirect to admin login if no token is present
-      return NextResponse.redirect(new URL('/admin/login', request.url));
+      return NextResponse.redirect(new URL("/admin/login", request.url));
     }
   }
-  
+
   // Admin API protection
-  if (pathname.startsWith('/api/admin') && pathname !== '/api/admin/validate') {
-    const adminToken = request.cookies.get('admin_token')?.value;
-    
+  if (pathname.startsWith("/api/admin")) {
+    const adminToken = request.cookies.get("admin_token")?.value;
+
     if (!adminToken) {
       return NextResponse.json(
         { error: "Unauthorized access" },
@@ -40,29 +44,43 @@ export async function middleware(request) {
       );
     }
   }
-  
+
   try {
     // Get configuration from Edge Config
-    const maintenanceMode = await get("maintenance_mode");
-    const allowedRoutes = await get("allowed_routes") || [];
-    
-    // Check if in maintenance mode
-    if (maintenanceMode && !allowedRoutes.includes(pathname)) {
+    const submissionEnabled = await get("submissionEnabled");
+    const votingEnabled = await get("votingEnabled");
+
+    // Voting path protection
+    if (pathname.startsWith("/api/vote") && votingEnabled === false) {
       return NextResponse.json(
-        { error: "Service temporarily unavailable" },
-        { status: 503 }
+        { error: "Voting is currently disabled" },
+        { status: 403 }
       );
     }
-    
-    // Add security headers
-    const response = NextResponse.next();
-    response.headers.set('X-Content-Type-Options', 'nosniff');
-    response.headers.set('X-Frame-Options', 'DENY');
-    response.headers.set('X-XSS-Protection', '1; mode=block');
-    
-    return response;
+
+    // Submission path protection
+    if (
+      (pathname.startsWith("/register") ||
+        pathname.startsWith("/api/entries")) &&
+      submissionEnabled === false
+    ) {
+      if (pathname.startsWith("/register")) {
+        // Redirect to home page with a message
+        return NextResponse.redirect(
+          new URL("/?submissionsDisabled=true", request.url)
+        );
+      } else {
+        // API response
+        return NextResponse.json(
+          { error: "Submissions are currently disabled" },
+          { status: 403 }
+        );
+      }
+    }
   } catch (error) {
-    console.error('Middleware error:', error);
-    return NextResponse.next();
+    console.error("Edge Config error:", error);
+    // Continue without restricting if Edge Config fails
   }
+
+  return NextResponse.next();
 }

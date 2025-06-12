@@ -11,9 +11,10 @@ export const FooterLink = ({ href, children, delay = 0 }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay }}
     >
+      {" "}
       <Link
         href={href}
-        className="text-muted-foreground hover:text-foreground transition-colors text-sm relative group"
+        className="text-foreground/80 hover:text-foreground transition-colors text-sm relative group"
       >
         {children}
         <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-purple-600 group-hover:w-full transition-all duration-300"></span>
@@ -26,7 +27,7 @@ export const FooterSection = ({ title, children }) => {
   return (
     <div className="mb-6 md:mb-0">
       {title && (
-        <h4 className="font-medium text-base mb-3 bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
+        <h4 className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400">
           {title}
         </h4>
       )}

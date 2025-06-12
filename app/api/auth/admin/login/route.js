@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { db } from "@/config/firebase";
-import { 
-  collection, 
-  doc, 
-  getDoc, 
-  setDoc, 
-  query, 
-  where, 
-  getDocs 
+import {
+  collection,
+  doc,
+  getDoc,
+  setDoc,
+  query,
+  where,
+  getDocs,
 } from "firebase/firestore";
 import { cookies } from "next/headers";
 import crypto from "crypto";
@@ -18,7 +18,7 @@ const ADMIN_SECRET = process.env.ADMIN_SECRET || "adminSecretKey123";
 export async function POST(request) {
   try {
     const { email, password } = await request.json();
-    
+
     if (!email || !password) {
       return NextResponse.json(
         { error: "Email and password are required" },
@@ -71,7 +71,7 @@ export async function POST(request) {
     );
 
     // Set secure cookie with session token
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     cookieStore.set({
       name: "admin_token",
       value: sessionToken,
@@ -88,7 +88,7 @@ export async function POST(request) {
       admin: {
         id: adminDoc.id,
         email: admin.email,
-        name: admin.name || email.split('@')[0],
+        name: admin.name || email.split("@")[0],
         role: admin.role || "admin",
       },
     });

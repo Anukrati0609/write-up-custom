@@ -17,7 +17,7 @@ export default function AdminIndex() {
         router.push("/admin/login");
       }
     };
-    
+
     checkAuth();
   }, [router, validateAdminSession]);
 

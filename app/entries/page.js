@@ -4,21 +4,14 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useUserStore } from "@/store/useUserStore";
 import Link from "next/link";
-import { Heart, ThumbsUp, Clock, FileText, ThumbsDown } from "lucide-react";
+import { FileText, ThumbsUp, TrendingUp, Award } from "lucide-react";
 import AnimatedCard from "@/components/ui/animated-card";
 import { SectionHeading } from "@/components/ui/section-heading";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AnimatedGradientBorder } from "@/components/ui/animated-gradient-border";
-import { IconButton } from "@/components/ui/icon-button";
 import { Toaster, toast } from "sonner";
+import EntryCard from "@/components/entries/EntryCard";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Entries() {
   const {
@@ -32,8 +25,10 @@ export default function Entries() {
   } = useUserStore();
 
   const [entries, setEntries] = useState([]);
+  const [topEntries, setTopEntries] = useState([]);
   const [loadingEntries, setLoadingEntries] = useState(true);
   const [votingFor, setVotingFor] = useState(null);
+  const [currentTab, setCurrentTab] = useState("all");
 
   useEffect(() => {
     const unsubscribe = initializeAuth();
@@ -47,6 +42,12 @@ export default function Entries() {
         const result = await getEntries();
         if (result.success) {
           setEntries(result.entries);
+
+          // Get top 5 entries by votes
+          const top = [...result.entries]
+            .sort((a, b) => b.votes - a.votes)
+            .slice(0, 5);
+          setTopEntries(top);
         }
       } catch (error) {
         console.error("Error fetching entries:", error);
@@ -64,6 +65,12 @@ export default function Entries() {
       const result = await getEntries();
       if (result.success) {
         setEntries(result.entries);
+
+        // Refresh top entries
+        const top = [...result.entries]
+          .sort((a, b) => b.votes - a.votes)
+          .slice(0, 5);
+        setTopEntries(top);
       }
     } catch (error) {
       console.error("Error fetching entries:", error);
@@ -71,6 +78,7 @@ export default function Entries() {
       setLoadingEntries(false);
     }
   };
+
   const handleVote = async (entryId) => {
     if (!user) {
       toast.error("Please sign in to vote");
@@ -96,7 +104,8 @@ export default function Entries() {
         setVotingFor(null);
       }
       return;
-    } // If user has voted for a different entry, show toast and return
+    }
+    // If user has voted for a different entry, show toast and return
     if (hasVoted() && user.votedFor !== entryId) {
       toast.error("You've already voted for another entry");
       return;
@@ -119,18 +128,6 @@ export default function Entries() {
     } finally {
       setVotingFor(null);
     }
-  };
-
-  const stripHtml = (html) => {
-    const tmp = document.createElement("DIV");
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || "";
-  };
-
-  const truncateContent = (content, maxWords = 50) => {
-    const words = stripHtml(content).split(" ");
-    if (words.length <= maxWords) return stripHtml(content);
-    return words.slice(0, maxWords).join(" ") + "...";
   };
 
   // Animation variants
@@ -161,14 +158,15 @@ export default function Entries() {
       </div>
     );
   }
+
   return (
     <main className="container mx-auto py-12 px-4 md:px-6">
-      {" "}
       <Toaster />
       <SectionHeading
         title="Competition Entries"
         subtitle="Browse and vote for your favorite entries in the Matrix WriteItUp competition"
       />
+
       {user && hasVoted() && (
         <motion.div
           className="max-w-md mx-auto mb-8 text-center"
@@ -182,6 +180,7 @@ export default function Entries() {
           </Badge>
         </motion.div>
       )}
+
       {entries.length === 0 ? (
         <AnimatedCard
           className="p-8 text-center max-w-md mx-auto"
@@ -197,83 +196,87 @@ export default function Entries() {
           </Link>
         </AnimatedCard>
       ) : (
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
+        <Tabs
+          defaultValue="all"
+          value={currentTab}
+          onValueChange={setCurrentTab}
+          className="mt-8"
         >
-          {entries.map((entry) => (
-            <motion.div key={entry.id} variants={fadeInUp}>
-              {" "}
-              <AnimatedGradientBorder
-                gradientColors="from-primary via-accent to-primary"
-                animationDuration={8}
-                containerClassName="h-full"
-              >
-                <Card className="h-full flex flex-col bg-black/10 backdrop-blur-sm">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-foreground line-clamp-1">
-                      {entry.title}
-                    </CardTitle>
-                  </CardHeader>
+          <div className="flex justify-center mb-6">
+            <TabsList className="grid grid-cols-2 w-[400px]">
+              <TabsTrigger value="all" className="flex items-center gap-2">
+                <FileText className="w-4 h-4" />
+                All Entries
+              </TabsTrigger>
+              <TabsTrigger value="top" className="flex items-center gap-2">
+                <Award className="w-4 h-4" />
+                Top 5 Entries
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-                  <CardContent className="flex-grow pb-4">
-                    <p className="text-muted-foreground line-clamp-4">
-                      {truncateContent(entry.content, 40)}
-                    </p>
-                  </CardContent>
-
-                  <CardFooter className="flex justify-between items-center pt-4 border-t border-border/40">
-                    <div className="flex items-center space-x-1 text-muted-foreground">
-                      <Clock className="w-4 h-4" />
-                      <span className="text-xs">
-                        {entry.createdAt
-                          ? new Date(entry.createdAt).toLocaleDateString()
-                          : "Recently"}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        variant="outline"
-                        className="flex items-center gap-1 px-2 py-1"
-                      >
-                        <Heart className="h-3.5 w-3.5 text-accent fill-accent" />
-                        <span>{entry.votes}</span>
-                      </Badge>{" "}
-                      {user &&
-                        (user.votedFor === entry.id ? (
-                          <IconButton
-                            icon={ThumbsDown}
-                            variant="secondary"
-                            size="sm"
-                            disabled={votingFor === entry.id}
-                            onClick={() => handleVote(entry.id)}
-                            className="bg-red-600/20 hover:bg-red-600/30 text-red-500"
-                          >
-                            {votingFor === entry.id
-                              ? "Processing..."
-                              : "Unvote"}
-                          </IconButton>
-                        ) : !hasVoted() ? (
-                          <IconButton
-                            icon={ThumbsUp}
-                            variant="outline"
-                            size="sm"
-                            disabled={votingFor === entry.id}
-                            onClick={() => handleVote(entry.id)}
-                          >
-                            {votingFor === entry.id ? "Voting..." : "Vote"}
-                          </IconButton>
-                        ) : null)}
-                    </div>
-                  </CardFooter>
-                </Card>
-              </AnimatedGradientBorder>
+          <TabsContent value="all">
+            <motion.div
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              {entries.map((entry) => (
+                <motion.div key={entry.id} variants={fadeInUp}>
+                  <EntryCard
+                    entry={entry}
+                    user={user}
+                    hasVoted={hasVoted}
+                    votingFor={votingFor}
+                    handleVote={handleVote}
+                  />
+                </motion.div>
+              ))}
             </motion.div>
-          ))}
-        </motion.div>
+          </TabsContent>
+
+          <TabsContent value="top">
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-4">
+                <TrendingUp className="w-5 h-5 text-primary" />
+                <h3 className="text-xl font-semibold">
+                  Top 5 Entries by Votes
+                </h3>
+              </div>
+              <p className="text-muted-foreground">
+                These are the highest-voted entries in the competition so far
+              </p>
+            </div>
+
+            <motion.div
+              className="grid grid-cols-1 gap-6 max-w-4xl mx-auto"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              {topEntries.map((entry, index) => (
+                <motion.div key={entry.id} variants={fadeInUp}>
+                  <div className="relative">
+                    <div className="absolute -left-4 -top-3 w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-black font-bold z-10">
+                      #{index + 1}
+                    </div>
+                    <EntryCard
+                      entry={{ ...entry, featured: index === 0 }}
+                      user={user}
+                      hasVoted={hasVoted}
+                      votingFor={votingFor}
+                      handleVote={handleVote}
+                      className="pl-5"
+                    />
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </TabsContent>
+        </Tabs>
       )}
+
       <div className="mt-12 text-center">
         <Link href="/">
           <Button variant="outline">Back to Home</Button>

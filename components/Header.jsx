@@ -174,11 +174,13 @@ const Header = () => {
                 className="text-white relative z-10 group-hover:scale-110 transition-transform duration-300"
                 priority
               />
-            </div>
+            </div>{" "}
             <div className="flex flex-col">
               <span className="text-lg font-bold text-foreground leading-tight tracking-tight">
-                Matrix
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
+                <span className="relative inline-block">
+                  Matrix
+                </span>
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400">
                   WriteItUp
                 </span>
               </span>

@@ -19,7 +19,7 @@ export const useAdminStore = create((set, get) => ({
 
   // Computed values
   isAuthenticated: () => !!get().admin,
-  
+
   // Admin authentication
   adminLogin: async (email, password) => {
     set({ loading: true, error: null });
@@ -201,5 +201,77 @@ export const useAdminStore = create((set, get) => ({
       set({ error: error.message, loading: false });
       return { success: false, error: error.message };
     }
-  }
+  },
+
+  // Entry management
+  updateEntryStatus: async (entryId, status) => {
+    set({ loading: true });
+    try {
+      const response = await fetch("/api/admin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: "updateEntryStatus",
+          entryId,
+          status,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to update entry status");
+      }
+
+      // Update entry in the store
+      const updatedEntries = get().entries.map((entry) => {
+        if (entry.id === entryId) {
+          return { ...entry, status };
+        }
+        return entry;
+      });
+
+      set({ entries: updatedEntries, loading: false });
+      return { success: true };
+    } catch (error) {
+      console.error("Update entry status error:", error);
+      set({ error: error.message, loading: false });
+      return { success: false, error: error.message };
+    }
+  },
+
+  deleteEntry: async (entryId) => {
+    set({ loading: true });
+    try {
+      const response = await fetch("/api/admin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: "deleteEntry",
+          entryIdToDelete: entryId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to delete entry");
+      }
+
+      // Remove entry from the store
+      const updatedEntries = get().entries.filter(
+        (entry) => entry.id !== entryId
+      );
+      set({ entries: updatedEntries, loading: false });
+      return { success: true };
+    } catch (error) {
+      console.error("Delete entry error:", error);
+      set({ error: error.message, loading: false });
+      return { success: false, error: error.message };
+    }
+  },
 }));
