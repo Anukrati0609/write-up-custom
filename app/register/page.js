@@ -30,6 +30,22 @@ export default function Register() {
   const { user, loading, error, submitEntry, hasSubmitted, initializeAuth } =
     useUserStore();
 
+  // Define branches array
+  const branches = [
+    {
+      value: "AI & DS",
+      label: "Artificial Intelligence and Data Science Engineering",
+    },
+    { value: "CSE", label: "Computer Science Engineering" },
+    { value: "IT", label: "Information Technology" },
+    { value: "ECE", label: "Electronics & Communication" },
+    { value: "EE", label: "Electrical Engineering" },
+    { value: "ME", label: "Mechanical Engineering" },
+    { value: "IP", label: "Industrial and Production Engineering" },
+    { value: "MT", label: "Mechatronics Engineering" },
+    { value: "Other", label: "Other" },
+  ];
+
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     fullName: "",
@@ -152,12 +168,11 @@ export default function Register() {
                 animate={{ rotate: 0 }}
                 transition={{ duration: 0.5, delay: 0.6 }}
               >
-                {" "}
                 <FileIcon className="w-7 h-7 text-white" />
               </motion.div>
             </div>
             <h3 className="text-xl font-bold ml-3 tracking-tight text-white">
-              Matrix{" "}
+              Matrix
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
                 WriteItUp
               </span>
@@ -181,7 +196,7 @@ export default function Register() {
           >
             <span className="inline-block transform hover:scale-105 transition-transform">
               💡
-            </span>{" "}
+            </span>
             Showcase your content writing skills and compete with talented
             writers from Jabalpur Engineering College.
           </motion.p>
@@ -195,7 +210,7 @@ export default function Register() {
         >
           {/* Decorative elements */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-600/10 to-purple-600/10 blur-xl rounded-full -mr-16 -mt-16"></div>
-          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-br from-indigo-500/10 to-blue-500/10 blur-xl rounded-full -ml-12 -mb-12"></div>{" "}
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-br from-indigo-500/10 to-blue-500/10 blur-xl rounded-full -ml-12 -mb-12"></div>
           {/* Tech pattern decorations */}
           <div className="absolute top-8 right-8">
             <TechCircleIcon className="h-24 w-24 opacity-20 text-indigo-500" />
@@ -218,7 +233,6 @@ export default function Register() {
                   >
                     <div className="absolute inset-0 rounded-full bg-blue-500/20 blur-md"></div>
                     <div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 p-3 flex items-center justify-center relative z-10 mx-auto shadow-xl shadow-blue-500/20">
-                      {" "}
                       <FileIcon className="w-8 h-8 text-white mx-auto" />
                     </div>
                   </motion.div>
@@ -258,7 +272,7 @@ export default function Register() {
 
                   <div className="mt-6 text-center text-slate-500 text-sm">
                     <p>
-                      By continuing, you agree to our{" "}
+                      By continuing, you agree to our
                       <Link
                         href="/guidelines"
                         className="text-blue-400 hover:text-blue-300 hover:underline transition-colors"
@@ -289,7 +303,7 @@ export default function Register() {
                     initial={{ scale: 0.6, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ duration: 0.8, delay: 0.6 }}
-                  ></motion.div>{" "}
+                  ></motion.div>
                   <CheckIcon
                     className="h-12 w-12 text-green-500"
                     animate={true}
@@ -327,7 +341,6 @@ export default function Register() {
                   whileTap={{ scale: 0.98 }}
                 >
                   <span className="flex items-center gap-2">
-                    {" "}
                     <HomeIcon className="h-5 w-5" />
                     Back to Home
                   </span>
@@ -342,7 +355,6 @@ export default function Register() {
                 transition={{ duration: 0.4 }}
                 className="max-w-xl mx-auto"
               >
-                {" "}
                 <div className="relative mb-10">
                   {/* Step indicators container */}
                   <div className="flex items-center justify-between relative z-10">
@@ -424,12 +436,13 @@ export default function Register() {
                       </span>
                     </motion.div>
                   </div>
-                </div>
+                </div>{" "}
                 {step === 1 ? (
                   <FormStep1
                     formData={formData}
                     setFormData={setFormData}
                     onNext={handleNext}
+                    branches={branches}
                   />
                 ) : (
                   <FormStep2

@@ -202,7 +202,7 @@ export default function AdminRegister() {
 
             <div className="text-center mt-4">
               <p className="text-sm text-slate-400">
-                Already have an account?{" "}
+                Already have an account?
                 <Link
                   href="/admin/login"
                   className="text-indigo-400 hover:text-indigo-300"

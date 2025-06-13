@@ -148,7 +148,7 @@ export default function Guidelines() {
               </motion.div>
             </div>
           </AnimatedGradientBorder>
-        </motion.div>{" "}
+        </motion.div>
         <motion.div variants={itemVariants} className="mb-8">
           <AnimatedCard
             className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 p-8 shadow-lg"
@@ -182,7 +182,7 @@ export default function Guidelines() {
               ))}
             </ul>
           </AnimatedCard>
-        </motion.div>{" "}
+        </motion.div>
         <motion.div variants={itemVariants} className="mb-8">
           <AnimatedCard
             className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 p-8 shadow-lg"
@@ -302,7 +302,7 @@ export default function Guidelines() {
               ))}
             </div>
           </AnimatedCard>
-        </motion.div>{" "}
+        </motion.div>
         <motion.div variants={itemVariants} className="mb-8">
           <AnimatedGradientBorder
             borderRadius="rounded-2xl"
@@ -371,7 +371,7 @@ export default function Guidelines() {
               </div>
             </div>
           </AnimatedGradientBorder>
-        </motion.div>{" "}
+        </motion.div>
         <motion.div
           className="flex justify-center mt-8"
           variants={itemVariants}

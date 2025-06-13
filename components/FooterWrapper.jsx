@@ -11,7 +11,6 @@ export const FooterLink = ({ href, children, delay = 0 }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay }}
     >
-      {" "}
       <Link
         href={href}
         className="text-foreground/80 hover:text-foreground transition-colors text-sm relative group"

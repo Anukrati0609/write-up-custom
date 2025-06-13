@@ -137,7 +137,6 @@ export default function About() {
           >
             <div className="absolute inset-0 bg-blue-500/30 rounded-full blur-lg"></div>
             <div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-3.5 flex items-center justify-center relative z-10 shadow-lg shadow-blue-500/20">
-              {" "}
               <FileIcon className="w-8 h-8 text-white" />
             </div>
           </motion.div>
@@ -199,7 +198,6 @@ export default function About() {
 
               <div className="flex items-center mb-3">
                 <div className="h-8 w-8 mr-3 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  {" "}
                   <MenuIcon className="h-4 w-4 text-blue-400" />
                 </div>
                 <h3 className="text-xl font-semibold text-white">
@@ -221,7 +219,6 @@ export default function About() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.7 + index * 0.1 }}
                   >
-                    {" "}
                     <CheckCircleIcon className="h-5 w-5 mr-2 text-blue-400 mt-0.5 flex-shrink-0" />
                     <span>{item}</span>
                   </motion.li>
@@ -239,7 +236,6 @@ export default function About() {
 
               <div className="flex items-center mb-3">
                 <div className="h-8 w-8 mr-3 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  {" "}
                   <BadgeIcon className="h-4 w-4 text-purple-400" />
                 </div>
                 <h3 className="text-xl font-semibold text-white">
@@ -261,7 +257,6 @@ export default function About() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.7 + index * 0.1 }}
                   >
-                    {" "}
                     <CheckCircleIcon className="h-5 w-5 mr-2 text-purple-400 mt-0.5 flex-shrink-0" />
                     <span>{item}</span>
                   </motion.li>
@@ -336,7 +331,6 @@ export default function About() {
             transition={{ delay: 1.2, duration: 0.5 }}
           >
             <Link href="/register">
-              {" "}
               <IconButton
                 icon={ArrowRightIcon}
                 iconPosition="right"

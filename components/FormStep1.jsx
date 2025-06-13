@@ -4,7 +4,7 @@ import { FaUser, FaCalendarAlt, FaUniversity } from "react-icons/fa";
 import { HiChevronDown } from "react-icons/hi";
 import { MdKeyboardArrowRight } from "react-icons/md";
 
-const FormStep1 = ({ formData, setFormData, onNext }) => {
+const FormStep1 = ({ formData, setFormData, onNext, branches = [] }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -54,7 +54,6 @@ const FormStep1 = ({ formData, setFormData, onNext }) => {
           custom={1}
           className="group"
         >
-          {" "}
           <label
             htmlFor="fullName"
             className="text-sm font-medium text-slate-300 mb-2 flex items-center space-x-1.5"
@@ -89,7 +88,6 @@ const FormStep1 = ({ formData, setFormData, onNext }) => {
           custom={2}
           className="group"
         >
-          {" "}
           <label
             htmlFor="year"
             className="text-sm font-medium text-slate-300 mb-2 flex items-center space-x-1.5"
@@ -157,7 +155,6 @@ const FormStep1 = ({ formData, setFormData, onNext }) => {
           custom={3}
           className="group"
         >
-          {" "}
           <label
             htmlFor="branch"
             className="text-sm font-medium text-slate-300 mb-2 flex items-center space-x-1.5"
@@ -180,6 +177,7 @@ const FormStep1 = ({ formData, setFormData, onNext }) => {
               className="w-full pl-10 pr-10 py-3.5 bg-slate-800/80 border border-slate-700/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white shadow-inner transition-all appearance-none group-hover:bg-slate-800 group-hover:border-blue-500/50"
               style={{ color: "white", backgroundColor: "#1e293b" }}
             >
+              {" "}
               <option
                 value=""
                 disabled
@@ -187,54 +185,15 @@ const FormStep1 = ({ formData, setFormData, onNext }) => {
               >
                 Select your branch
               </option>
-              <option
-                value="CSE"
-                style={{ backgroundColor: "#1e293b", color: "white" }}
-              >
-                Computer Science Engineering
-              </option>
-              <option
-                value="IT"
-                style={{ backgroundColor: "#1e293b", color: "white" }}
-              >
-                Information Technology
-              </option>
-              <option
-                value="ECE"
-                style={{ backgroundColor: "#1e293b", color: "white" }}
-              >
-                Electronics & Communication
-              </option>
-              <option
-                value="EE"
-                style={{ backgroundColor: "#1e293b", color: "white" }}
-              >
-                Electrical Engineering
-              </option>
-              <option
-                value="ME"
-                style={{ backgroundColor: "#1e293b", color: "white" }}
-              >
-                Mechanical Engineering
-              </option>
-              <option
-                value="CE"
-                style={{ backgroundColor: "#1e293b", color: "white" }}
-              >
-                Civil Engineering
-              </option>
-              <option
-                value="CHE"
-                style={{ backgroundColor: "#1e293b", color: "white" }}
-              >
-                Chemical Engineering
-              </option>
-              <option
-                value="Other"
-                style={{ backgroundColor: "#1e293b", color: "white" }}
-              >
-                Other
-              </option>
+              {branches.map((branch) => (
+                <option
+                  key={branch.value}
+                  value={branch.value}
+                  style={{ backgroundColor: "#1e293b", color: "white" }}
+                >
+                  {branch.label}
+                </option>
+              ))}
             </select>
             <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-blue-400 group-hover:text-blue-300 transition-colors">
               <HiChevronDown size={20} className="animate-pulse" />

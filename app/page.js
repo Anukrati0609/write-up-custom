@@ -479,7 +479,7 @@ export default function Home() {
 
               <h1 className="text-5xl md:text-6xl xl:text-7xl font-bold tracking-tight leading-tight">
                 <span className="relative inline-block">
-                  Matrix{" "}
+                  Matrix
                   <div className="absolute -top-2 -right-2 w-6 h-6">
                     <motion.div
                       animate={{
@@ -682,8 +682,8 @@ export default function Home() {
               </ThreeDCard>
             </FloatingElement>
           </motion.div>
-        </div>{" "}
-      </section>{" "}
+        </div>
+      </section>
       {/* Stats Section */}
       <section className="py-24 relative border-t border-b border-white/5">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-900/5 to-purple-900/5 -z-10"></div>
@@ -763,7 +763,7 @@ export default function Home() {
             ))}
           </motion.div>
         </div>
-      </section>{" "}
+      </section>
       {/* Timeline Section */}
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 -z-30">
@@ -824,7 +824,6 @@ export default function Home() {
                       index % 2 === 0 ? "text-right" : "text-left"
                     }`}
                   >
-                    {" "}
                     <GlassMorphism
                       className={`p-4 ${
                         index % 2 === 0 ? "ml-auto" : "mr-auto"
@@ -879,7 +878,7 @@ export default function Home() {
             ))}
           </div>
         </div>
-      </section>{" "}
+      </section>
       {/* Top Entries Section with Tab Navigation */}
       <section className="py-24 relative border-t border-white/5">
         <div className="absolute inset-0 bg-black/30 -z-30" />
@@ -942,7 +941,7 @@ export default function Home() {
                     >
                       <Clock className="h-4 w-4 mr-2" /> Recent Entries
                     </TabsTrigger>
-                  </TabsList>{" "}
+                  </TabsList>
                   <TabsContent value="top">
                     {loadingEntries ? (
                       <div className="flex justify-center items-center py-16">
@@ -987,7 +986,6 @@ export default function Home() {
                             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                             variants={containerVariants}
                           >
-                            {" "}
                             {currentTopEntries.map((entry, index) => (
                               <motion.div key={entry.id} variants={fadeInUp}>
                                 <div className="relative">
@@ -1004,9 +1002,9 @@ export default function Home() {
                                   />
                                 </div>
                               </motion.div>
-                            ))}{" "}
+                            ))}
                           </motion.div>
-                        </div>{" "}
+                        </div>
                         <div className="flex justify-center mt-10">
                           <Link href="/entries">
                             <AnimatedGradientBorder
@@ -1027,8 +1025,8 @@ export default function Home() {
                           </Link>
                         </div>
                       </motion.div>
-                    )}{" "}
-                  </TabsContent>{" "}
+                    )}
+                  </TabsContent>
                   <TabsContent value="recent">
                     {loadingEntries ? (
                       <div className="flex justify-center items-center py-16">
@@ -1044,7 +1042,6 @@ export default function Home() {
                         animate="visible"
                         id="recent-entries-container"
                       >
-                        {" "}
                         {/* Header for recent entries with animated subtitle */}
                         <motion.div
                           className="mb-10 text-center"
@@ -1093,13 +1090,13 @@ export default function Home() {
                         </div>
                       </motion.div>
                     )}
-                  </TabsContent>{" "}
+                  </TabsContent>
                 </Tabs>
               </GlassMorphism>
             </motion.div>
           </div>
         </div>
-      </section>{" "}
+      </section>
       {/* Features section */}
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-grid-small-white/5 -z-10" />
@@ -1188,7 +1185,6 @@ export default function Home() {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            {" "}
             <div className="text-6xl font-serif text-primary/40 absolute top-0 left-0">
               &ldquo;
             </div>
@@ -1213,7 +1209,7 @@ export default function Home() {
             </div>
           </motion.div>
         </div>
-      </section>{" "}
+      </section>
       {/* CTA Section */}
       <section className="py-24 relative overflow-hidden border-t border-primary/10">
         <div className="absolute inset-0 -z-30">
@@ -1275,7 +1271,7 @@ export default function Home() {
                       >
                         Ready to showcase your writing talent?
                       </motion.h2>
-                    </AnimatedGradientBorder>{" "}
+                    </AnimatedGradientBorder>
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       whileInView={{ opacity: 1, y: 0 }}
@@ -1329,7 +1325,6 @@ export default function Home() {
                       transition={{ delay: 0.6 }}
                     >
                       <p className="text-sm text-white/60 flex items-center justify-center gap-2">
-                        {" "}
                         <Clock className="h-4 w-4" />
                         Competition starts on June 15, 2025
                       </p>
@@ -1339,7 +1334,7 @@ export default function Home() {
               </GlassMorphism>
             </ThreeDCard>
           </div>
-        </div>{" "}
+        </div>
       </section>
     </main>
   );

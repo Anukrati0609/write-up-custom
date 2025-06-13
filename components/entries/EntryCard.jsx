@@ -1,6 +1,18 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Heart, ThumbsUp, Clock, EyeIcon, ThumbsDown } from "lucide-react";
+import {
+  Heart,
+  ThumbsUp,
+  Clock,
+  EyeIcon,
+  ThumbsDown,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Users,
+  Calendar,
+  User,
+} from "lucide-react";
 import Link from "next/link";
 import {
   Card,
@@ -38,11 +50,42 @@ const EntryCard = ({
     tmp.innerHTML = html;
     return tmp.textContent || tmp.innerText || "";
   };
-
   const truncateContent = (content, maxWords = 50) => {
     const words = stripHtml(content).split(" ");
     if (words.length <= maxWords) return stripHtml(content);
     return words.slice(0, maxWords).join(" ") + "...";
+  };
+  const getOrdinalYear = (year) => {
+    const yearNum = parseInt(year);
+    if (yearNum === 1) return "1st";
+    if (yearNum === 2) return "2nd";
+    if (yearNum === 3) return "3rd";
+    if (yearNum === 4) return "4th";
+    return `${yearNum}th`;
+  };
+
+  const getStatusInfo = (status) => {
+    switch (status) {
+      case "approved":
+        return {
+          icon: CheckCircle,
+          color: "bg-green-500/20 text-green-400 border-green-500/30",
+          label: "Approved",
+        };
+      case "rejected":
+        return {
+          icon: XCircle,
+          color: "bg-red-500/20 text-red-400 border-red-500/30",
+          label: "Rejected",
+        };
+      case "pending":
+      default:
+        return {
+          icon: AlertCircle,
+          color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+          label: "Pending",
+        };
+    }
   };
 
   return (
@@ -75,9 +118,46 @@ const EntryCard = ({
               <CardTitle className="text-foreground text-2xl md:text-3xl font-bold text-left">
                 {entry.title}
               </CardTitle>
-
+              <div className="flex items-center gap-2 mt-2">
+                <Badge
+                  variant="secondary"
+                  className="text-xs bg-primary/20 text-primary border-primary/30"
+                >
+                  {getOrdinalYear(entry.year)} Year
+                </Badge>
+                <Badge
+                  variant="secondary"
+                  className="text-xs bg-accent/20 text-accent border-accent/30"
+                >
+                  {entry.branch}
+                </Badge>
+                {isAdmin && showAllDetails && entry.status && (
+                  <Badge
+                    variant="secondary"
+                    className={`text-xs flex items-center gap-1 ${
+                      getStatusInfo(entry.status).color
+                    }`}
+                  >
+                    {React.createElement(getStatusInfo(entry.status).icon, {
+                      className: "h-3 w-3",
+                    })}
+                    {getStatusInfo(entry.status).label}
+                  </Badge>
+                )}
+              </div>{" "}
+              {isAdmin && showAllDetails && entry.authorName && (
+                <div className="flex items-center gap-1 mt-2 text-sm text-muted-foreground">
+                  <User className="h-3 w-3" />
+                  <span>By: {entry.authorName}</span>
+                  {entry.userId && (
+                    <span className="text-xs opacity-70">
+                      ({entry.userId.substring(0, 8)}...)
+                    </span>
+                  )}
+                </div>
+              )}
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500/30 via-primary/50 to-purple-500/30"></div>
-            </CardHeader>
+            </CardHeader>{" "}
             <CardContent className="flex-grow px-5 py-4">
               <div className="flex flex-row justify-between items-center mb-4">
                 <Badge
@@ -104,26 +184,89 @@ const EntryCard = ({
                       : "Recently"}
                   </span>
                 </div>
-              </div>{" "}
+              </div>
+
+              {isAdmin && showAllDetails && (
+                <div className="mb-4 space-y-2">
+                  {" "}
+                  {entry.voters && entry.voters.length > 0 && (
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">
+                        {entry.voters.length} voter
+                        {entry.voters.length !== 1 ? "s" : ""}
+                      </span>
+                      <Badge variant="outline" className="text-xs">
+                        {entry.voters.length} votes
+                      </Badge>
+                    </div>
+                  )}
+                  {entry.voters && entry.voters.length > 0 && (
+                    <div className="text-xs text-muted-foreground">
+                      <details className="cursor-pointer">
+                        <summary className="hover:text-foreground transition-colors">
+                          View voter IDs
+                        </summary>
+                        <div className="mt-1 ml-4 space-y-1">
+                          {entry.voters.map((voterId, index) => (
+                            <div key={voterId} className="font-mono text-xs">
+                              {index + 1}. {voterId}
+                            </div>
+                          ))}
+                        </div>
+                      </details>
+                    </div>
+                  )}
+                  {entry.updatedAt && (
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">
+                        Updated:{" "}
+                        {new Date(entry.updatedAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  )}
+                  {entry.reviewedAt && (
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">
+                        Reviewed:{" "}
+                        {new Date(
+                          entry.reviewedAt.seconds
+                            ? entry.reviewedAt.seconds * 1000
+                            : entry.reviewedAt
+                        ).toLocaleDateString()}
+                      </span>
+                    </div>
+                  )}
+                  {entry.reviewedBy && (
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">
+                        Reviewed by: {entry.reviewedBy.substring(0, 8)}...
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <p className="text-white/80 line-clamp-2 text-left text-base">
                 {truncateContent(entry.content, 60)}
               </p>
             </CardContent>{" "}
             <CardFooter className="flex flex-row justify-between items-center pt-3 pb-4 border-t border-border/20">
               <div className="flex items-center justify-start">
-                {!isAdmin && (
-                  <motion.div whileTap={{ scale: 0.95 }}>
-                    <IconButton
-                      icon={EyeIcon}
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowModal(true)}
-                      className="hover:bg-primary/10 transition-colors duration-300"
-                    >
-                      View
-                    </IconButton>
-                  </motion.div>
-                )}
+                <motion.div whileTap={{ scale: 0.95 }}>
+                  <IconButton
+                    icon={EyeIcon}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowModal(true)}
+                    className="hover:bg-primary/10 transition-colors duration-300"
+                  >
+                    View
+                  </IconButton>
+                </motion.div>
               </div>
 
               <div className="flex items-center justify-end gap-2">
@@ -140,7 +283,7 @@ const EntryCard = ({
                       {votingFor === entry.id ? "Processing..." : "Unvote"}
                     </IconButton>
                   </motion.div>
-                )}{" "}
+                )}
                 {user && !isAdmin && !user.votedFor && !hasVoted() && (
                   <motion.div whileTap={{ scale: 0.95 }}>
                     <IconButton
@@ -173,11 +316,10 @@ const EntryCard = ({
             </CardFooter>
           </Card>
         </AnimatedGradientBorder>
-      </motion.div>{" "}
+      </motion.div>
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto bg-black/90 border-primary/40 backdrop-blur-md text-foreground shadow-xl shadow-primary/20">
-          <div className="absolute -z-10 inset-0 bg-gradient-to-br from-blue-900/20 via-black/0 to-purple-900/20 rounded-lg overflow-hidden"></div>
-
+          <div className="absolute -z-10 inset-0 bg-gradient-to-br from-blue-900/20 via-black/0 to-purple-900/20 rounded-lg overflow-hidden"></div>{" "}
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold flex items-center gap-2 bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-white">
               {entry.title}
@@ -190,26 +332,124 @@ const EntryCard = ({
                 </Badge>
               )}
             </DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground flex items-center gap-1">
-              <Clock className="h-3.5 w-3.5" />
-              Submitted on {new Date(entry.createdAt).toLocaleDateString()}
-            </DialogDescription>
+            <div className="flex items-center gap-2 mt-2">
+              <Badge
+                variant="secondary"
+                className="text-xs bg-primary/20 text-primary border-primary/30"
+              >
+                {getOrdinalYear(entry.year)} Year
+              </Badge>
+              <Badge
+                variant="secondary"
+                className="text-xs bg-accent/20 text-accent border-accent/30"
+              >
+                {entry.branch}
+              </Badge>
+              {isAdmin && entry.status && (
+                <Badge
+                  variant="secondary"
+                  className={`text-xs flex items-center gap-1 ${
+                    getStatusInfo(entry.status).color
+                  }`}
+                >
+                  {React.createElement(getStatusInfo(entry.status).icon, {
+                    className: "h-3 w-3",
+                  })}
+                  {getStatusInfo(entry.status).label}
+                </Badge>
+              )}
+            </div>
+            <div className="space-y-2 mt-3">
+              <DialogDescription className="text-sm text-muted-foreground flex items-center gap-1">
+                <Clock className="h-3.5 w-3.5" />
+                Submitted on {new Date(entry.createdAt).toLocaleDateString()}
+              </DialogDescription>{" "}
+              {isAdmin && entry.authorName && (
+                <DialogDescription className="text-sm text-muted-foreground flex items-center gap-1">
+                  <User className="h-3.5 w-3.5" />
+                  Author: {entry.authorName}{" "}
+                  {entry.userId && `(${entry.userId.substring(0, 12)}...)`}
+                </DialogDescription>
+              )}
+              {isAdmin && entry.updatedAt && (
+                <DialogDescription className="text-sm text-muted-foreground flex items-center gap-1">
+                  <Calendar className="h-3.5 w-3.5" />
+                  Updated: {new Date(entry.updatedAt).toLocaleDateString()}
+                </DialogDescription>
+              )}
+              {isAdmin && entry.reviewedAt && (
+                <DialogDescription className="text-sm text-muted-foreground flex items-center gap-1">
+                  <CheckCircle className="h-3.5 w-3.5" />
+                  Reviewed:{" "}
+                  {new Date(
+                    entry.reviewedAt.seconds
+                      ? entry.reviewedAt.seconds * 1000
+                      : entry.reviewedAt
+                  ).toLocaleDateString()}
+                </DialogDescription>
+              )}
+              {isAdmin && entry.reviewedBy && (
+                <DialogDescription className="text-sm text-muted-foreground flex items-center gap-1">
+                  <User className="h-3.5 w-3.5" />
+                  Reviewed by: {entry.reviewedBy}
+                </DialogDescription>
+              )}{" "}
+              {isAdmin && entry.voters && entry.voters.length > 0 && (
+                <div className="space-y-1">
+                  <DialogDescription className="text-sm text-muted-foreground flex items-center gap-1">
+                    <Users className="h-3.5 w-3.5" />
+                    Voters: {entry.voters.length} user
+                    {entry.voters.length !== 1 ? "s" : ""}
+                  </DialogDescription>
+                  <details className="cursor-pointer ml-5">
+                    <summary className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                      View voter details
+                    </summary>
+                    <div className="mt-2 ml-2 space-y-1 max-h-32 overflow-y-auto">
+                      {entry.voters.map((voterId, index) => (
+                        <div
+                          key={voterId}
+                          className="font-mono text-xs text-muted-foreground"
+                        >
+                          {index + 1}. {voterId}
+                        </div>
+                      ))}
+                    </div>
+                  </details>
+                </div>
+              )}
+            </div>
           </DialogHeader>
-
           <div className="my-4 prose prose-invert max-w-none">
             <div dangerouslySetInnerHTML={{ __html: entry.content }} />
-          </div>
-
+          </div>{" "}
           <div className="mt-6 flex justify-between items-center border-t border-primary/20 pt-4">
-            <Badge
-              variant="outline"
-              className="flex items-center gap-2 px-4 py-2 bg-primary/10 border-primary/30"
-            >
-              <Heart className="h-5 w-5 text-red-400 fill-red-400" />
-              <span className="text-base font-medium">{entry.votes} votes</span>
-            </Badge>
+            <div className="flex items-center gap-4">
+              <Badge
+                variant="outline"
+                className="flex items-center gap-2 px-4 py-2 bg-primary/10 border-primary/30"
+              >
+                <Heart className="h-5 w-5 text-red-400 fill-red-400" />
+                <span className="text-base font-medium">
+                  {entry.votes} votes
+                </span>
+              </Badge>
 
-            {user && !hasVoted() && (
+              {isAdmin && entry.voters && entry.voters.length > 0 && (
+                <Badge
+                  variant="outline"
+                  className="flex items-center gap-2 px-4 py-2 bg-secondary/10 border-secondary/30"
+                >
+                  <Users className="h-5 w-5 text-blue-400" />
+                  <span className="text-base font-medium">
+                    {entry.voters.length} voter
+                    {entry.voters.length !== 1 ? "s" : ""}
+                  </span>
+                </Badge>
+              )}
+            </div>
+
+            {user && !hasVoted() && !isAdmin && (
               <motion.div whileTap={{ scale: 0.95 }}>
                 <IconButton
                   icon={ThumbsUp}

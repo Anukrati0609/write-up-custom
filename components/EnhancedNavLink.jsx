@@ -52,7 +52,7 @@ export const EnhancedNavLink = ({
           : "text-muted-foreground hover:text-foreground"
       } transition-colors`}
     >
-      <div className="absolute inset-0 rounded-md opacity-0 bg-accent group-hover:opacity-100 transition-opacity" />{" "}
+      <div className="absolute inset-0 rounded-md opacity-0 bg-accent group-hover:opacity-100 transition-opacity" />
       <div className="relative z-10 flex items-center gap-2">
         <Icon
           className={`h-4 w-4 ${

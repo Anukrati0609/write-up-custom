@@ -24,6 +24,8 @@ import {
   ArrowUpDown,
   TrendingUp,
   Award,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -42,7 +44,6 @@ export default function AdminDashboard() {
     adminLogout,
     validateAdminSession,
   } = useAdminStore();
-
   const [activeTab, setActiveTab] = useState("entries");
   const [voteEnabled, setVoteEnabled] = useState(true);
   const [submissionEnabled, setSubmissionEnabled] = useState(true);
@@ -52,6 +53,14 @@ export default function AdminDashboard() {
   const [entrySortOrder, setEntrySortOrder] = useState("desc");
   const [showSettings, setShowSettings] = useState(false);
   const [topEntries, setTopEntries] = useState([]);
+  console.log('top ',topEntries)
+  const [entriesViewTab, setEntriesViewTab] = useState("top");
+
+  // Pagination states
+  const [currentEntriesPage, setCurrentEntriesPage] = useState(1);
+  const [currentUsersPage, setCurrentUsersPage] = useState(1);
+  const [entriesPerPage] = useState(6);
+  const [usersPerPage] = useState(8);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -158,6 +167,15 @@ export default function AdminDashboard() {
       }
     });
 
+  // Pagination logic for entries
+  const indexOfLastEntry = currentEntriesPage * entriesPerPage;
+  const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
+  const currentEntries = filteredEntries.slice(
+    indexOfFirstEntry,
+    indexOfLastEntry
+  );
+  const totalEntriesPages = Math.ceil(filteredEntries.length / entriesPerPage);
+
   // Filter users
   const filteredUsers = users.filter((user) => {
     if (!searchTerm.trim()) return true;
@@ -167,6 +185,50 @@ export default function AdminDashboard() {
       user.email?.toLowerCase().includes(searchLower)
     );
   });
+
+  // Pagination logic for users
+  const indexOfLastUser = currentUsersPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+  const totalUsersPages = Math.ceil(filteredUsers.length / usersPerPage);
+
+  // Pagination functions
+  const paginateEntries = (pageNumber) => {
+    setCurrentEntriesPage(pageNumber);
+  };
+
+  const nextEntriesPage = () => {
+    if (currentEntriesPage < totalEntriesPages) {
+      setCurrentEntriesPage(currentEntriesPage + 1);
+    }
+  };
+
+  const prevEntriesPage = () => {
+    if (currentEntriesPage > 1) {
+      setCurrentEntriesPage(currentEntriesPage - 1);
+    }
+  };
+
+  const paginateUsers = (pageNumber) => {
+    setCurrentUsersPage(pageNumber);
+  };
+
+  const nextUsersPage = () => {
+    if (currentUsersPage < totalUsersPages) {
+      setCurrentUsersPage(currentUsersPage + 1);
+    }
+  };
+
+  const prevUsersPage = () => {
+    if (currentUsersPage > 1) {
+      setCurrentUsersPage(currentUsersPage - 1);
+    }
+  };
+  // Reset pagination when search term changes or tab changes
+  useEffect(() => {
+    setCurrentEntriesPage(1);
+    setCurrentUsersPage(1);
+  }, [searchTerm, activeTab, entriesViewTab]);
 
   if (!admin) return null;
 
@@ -424,77 +486,183 @@ export default function AdminDashboard() {
                     </select>
                   </div>
                 </div>
-              </div>
+              </div>{" "}
+              {/* Nested Tabs for Entries View */}
+              <Tabs
+                value={entriesViewTab}
+                onValueChange={setEntriesViewTab}
+                className="w-full"
+              >
+                <TabsList className="w-full max-w-md bg-slate-800 mb-6">
+                  <TabsTrigger
+                    value="top"
+                    className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white flex-1"
+                  >
+                    <TrendingUp className="h-4 w-4 mr-2" />
+                    Top Entries
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="all"
+                    className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white flex-1"
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    All Entries
+                  </TabsTrigger>
+                </TabsList>
 
-              {/* Top 5 Entries Section */}
-              <Card className="mb-6 overflow-hidden">
-                <div className="p-4 border-b bg-muted/40">
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5 text-primary" />
-                    <h3 className="font-medium text-lg">Top 5 Entries</h3>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    The highest voted submissions in the competition
-                  </p>
-                </div>
-
-                <div className="p-4">
+                <TabsContent value="top" className="space-y-4">
                   {topEntries.length === 0 ? (
-                    <div className="text-center py-8">
-                      <p className="text-muted-foreground">
-                        No entries available
+                    <div className="text-center py-16 bg-slate-900/50 backdrop-blur-sm rounded-xl border border-slate-700">
+                      <FileText className="w-12 h-12 mx-auto mb-4 text-indigo-400 opacity-80" />
+                      <h3 className="text-2xl font-bold mb-2 text-white">
+                        No Entries Yet
+                      </h3>
+                      <p className="text-slate-400 mb-6 max-w-md mx-auto">
+                        Waiting for participants to submit their entries!
                       </p>
                     </div>
                   ) : (
-                    <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {topEntries.map((entry, index) => (
                         <div key={entry.id} className="relative">
-                          <div className="absolute -left-2 -top-2 w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-black font-bold z-10">
+                          <div className="absolute -left-3 -top-3 w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold z-10">
                             #{index + 1}
                           </div>
                           <EntryCard
-                            entry={{ ...entry, featured: index === 0 }}
+                            entry={entry}
+                            user={entry.authorName}
+                            hasVoted={() => false}
+                            votingFor={null}
+                            handleVote={() => {}}
+                            isAdmin={true}
+                            showAllDetails={true}
+                            className="pl-2"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="all" className="space-y-4">
+                  {loading ? (
+                    <div className="flex items-center justify-center py-20">
+                      <div className="w-10 h-10 border-t-4 border-b-4 border-indigo-500 rounded-full animate-spin"></div>
+                    </div>
+                  ) : filteredEntries.length === 0 ? (
+                    <div className="text-center py-10">
+                      {searchTerm ? (
+                        <p className="text-slate-400">
+                          No entries found matching &apos;{searchTerm}&apos;
+                        </p>
+                      ) : (
+                        <p className="text-slate-400">No entries found</p>
+                      )}
+                    </div>
+                  ) : (
+                    <>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {currentEntries.map((entry) => (
+                          <EntryCard
+                            key={entry.id}
+                            entry={entry}
                             user={null}
                             hasVoted={() => false}
                             votingFor={null}
                             handleVote={() => {}}
                             isAdmin={true}
                             showAllDetails={true}
-                            className={
-                              index === 0
-                                ? "border-2 border-accent/30 pl-5"
-                                : "pl-5"
-                            }
                           />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </Card>
+                        ))}
+                      </div>
 
-              {/* All Entries */}
-              {loading ? (
-                <div className="flex items-center justify-center py-20">
-                  <div className="w-10 h-10 border-t-4 border-b-4 border-indigo-500 rounded-full animate-spin"></div>
-                </div>
-              ) : filteredEntries.length === 0 ? (
-                <div className="text-center py-10">
-                  {searchTerm ? (
-                    <p className="text-slate-400">
-                      No entries found matching &apos;{searchTerm}&apos;
-                    </p>
-                  ) : (
-                    <p className="text-slate-400">No entries found</p>
+                      {/* Entries Pagination */}
+                      {filteredEntries.length > entriesPerPage && (
+                        <div className="mt-8 flex flex-col items-center space-y-4">
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={prevEntriesPage}
+                              disabled={currentEntriesPage === 1}
+                              className="rounded-full"
+                            >
+                              <ChevronLeft className="h-4 w-4" />
+                            </Button>
+
+                            <div className="flex items-center bg-muted/20 rounded-full px-3 py-1">
+                              {[...Array(totalEntriesPages)].map((_, index) => {
+                                const pageNumber = index + 1;
+                                const isActive =
+                                  pageNumber === currentEntriesPage;
+
+                                if (
+                                  pageNumber === 1 ||
+                                  pageNumber === totalEntriesPages ||
+                                  (pageNumber >= currentEntriesPage - 1 &&
+                                    pageNumber <= currentEntriesPage + 1)
+                                ) {
+                                  return (
+                                    <Button
+                                      key={pageNumber}
+                                      variant={isActive ? "default" : "ghost"}
+                                      size="sm"
+                                      className={`mx-1 w-10 h-10 rounded-full ${
+                                        isActive
+                                          ? "bg-primary text-primary-foreground"
+                                          : ""
+                                      }`}
+                                      onClick={() =>
+                                        paginateEntries(pageNumber)
+                                      }
+                                      disabled={isActive}
+                                    >
+                                      {pageNumber}
+                                    </Button>
+                                  );
+                                } else if (
+                                  (pageNumber === currentEntriesPage - 2 &&
+                                    currentEntriesPage > 3) ||
+                                  (pageNumber === currentEntriesPage + 2 &&
+                                    currentEntriesPage < totalEntriesPages - 2)
+                                ) {
+                                  return (
+                                    <span
+                                      key={pageNumber}
+                                      className="px-2 text-muted-foreground"
+                                    >
+                                      ...
+                                    </span>
+                                  );
+                                }
+                                return null;
+                              })}
+                            </div>
+
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={nextEntriesPage}
+                              disabled={
+                                currentEntriesPage === totalEntriesPages
+                              }
+                              className="rounded-full"
+                            >
+                              <ChevronRight className="h-4 w-4" />
+                            </Button>
+                          </div>
+
+                          <div className="text-sm text-muted-foreground bg-muted/10 px-4 py-2 rounded-full">
+                            Showing {indexOfFirstEntry + 1}-
+                            {Math.min(indexOfLastEntry, filteredEntries.length)}{" "}
+                            of {filteredEntries.length} entries
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {filteredEntries.map((entry) => (
-                    <EntryCard key={entry.id} entry={entry} />
-                  ))}
-                </div>
-              )}
+                </TabsContent>
+              </Tabs>
             </TabsContent>
 
             <TabsContent value="users" className="p-6">
@@ -525,44 +693,190 @@ export default function AdminDashboard() {
                   )}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {filteredUsers.map((user) => (
-                    <motion.div
-                      key={user.uid}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="p-4 bg-slate-800 border border-slate-700 rounded-lg"
-                    >
-                      <div className="flex items-center gap-3">
-                        {user.photoURL && (
-                          <Image
-                            src={user.photoURL}
-                            alt={user.displayName || "User"}
-                            width={40}
-                            height={40}
-                            className="h-10 w-10 rounded-full object-cover"
-                          />
-                        )}
-                        <div>
-                          <h3 className="font-medium text-white">
-                            {user.displayName || user.email}
-                          </h3>
-                          <p className="text-sm text-slate-400">{user.email}</p>
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {currentUsers.map((user) => (
+                      <motion.div
+                        key={user.uid}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="p-5 bg-slate-800 border border-slate-700 rounded-lg hover:bg-slate-700/50 transition-colors"
+                      >
+                        <div className="flex items-start gap-3">
+                          {user.photoURL ? (
+                            <Image
+                              src={user.photoURL}
+                              alt={user.displayName || "User"}
+                              width={48}
+                              height={48}
+                              className="h-12 w-12 rounded-full object-cover border-2 border-slate-600"
+                            />
+                          ) : (
+                            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center border-2 border-slate-600">
+                              <span className="text-white font-semibold text-lg">
+                                {(user.displayName || user.email || "U")
+                                  .charAt(0)
+                                  .toUpperCase()}
+                              </span>
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-white text-lg truncate">
+                              {user.displayName || "Unknown User"}
+                            </h3>
+                            <p className="text-sm text-slate-400 truncate">
+                              {user.email}
+                            </p>
+                            {user.createdAt && (
+                              <p className="text-xs text-slate-500 mt-1">
+                                Joined:{" "}
+                                {new Date(user.createdAt).toLocaleDateString()}
+                              </p>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        <Badge
-                          variant={user.is_submitted ? "success" : "outline"}
+
+                        <div className="mt-4 space-y-3">
+                          <div className="flex flex-wrap gap-2">
+                            <Badge
+                              className={
+                                user.is_submitted
+                                  ? "bg-green-500/20 text-green-400 border-green-500/30"
+                                  : "bg-slate-500/20 text-slate-400 border-slate-500/30"
+                              }
+                            >
+                              {user.is_submitted
+                                ? "✓ Submitted"
+                                : "○ Not Submitted"}
+                            </Badge>
+                            <Badge
+                              className={
+                                user.is_voted
+                                  ? "bg-blue-500/20 text-blue-400 border-blue-500/30"
+                                  : "bg-slate-500/20 text-slate-400 border-slate-500/30"
+                              }
+                            >
+                              {user.is_voted ? "✓ Voted" : "○ Not Voted"}
+                            </Badge>
+                          </div>
+
+                          {/* Additional user info */}
+                          <div className="pt-2 border-t border-slate-700">
+                            <div className="grid grid-cols-2 gap-2 text-xs">
+                              <div>
+                                <span className="text-slate-500">
+                                  Provider:
+                                </span>
+                                <span className="text-slate-300 ml-1 capitalize">
+                                  {user.providerId || "Email"}
+                                </span>
+                              </div>
+                              {user.lastLoginAt && (
+                                <div>
+                                  <span className="text-slate-500">
+                                    Last Login:
+                                  </span>
+                                  <span className="text-slate-300 ml-1">
+                                    {new Date(
+                                      user.lastLoginAt
+                                    ).toLocaleDateString()}
+                                  </span>
+                                </div>
+                              )}
+                              {user.uid && (
+                                <div className="col-span-2">
+                                  <span className="text-slate-500">UID:</span>
+                                  <span className="text-slate-300 ml-1 font-mono text-xs">
+                                    {user.uid.substring(0, 8)}...
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  {/* Users Pagination */}
+                  {filteredUsers.length > usersPerPage && (
+                    <div className="mt-8 flex flex-col items-center space-y-4">
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={prevUsersPage}
+                          disabled={currentUsersPage === 1}
+                          className="rounded-full"
                         >
-                          {user.is_submitted ? "Submitted" : "Not Submitted"}
-                        </Badge>
-                        <Badge variant={user.is_voted ? "success" : "outline"}>
-                          {user.is_voted ? "Voted" : "Not Voted"}
-                        </Badge>
+                          <ChevronLeft className="h-4 w-4" />
+                        </Button>
+
+                        <div className="flex items-center bg-muted/20 rounded-full px-3 py-1">
+                          {[...Array(totalUsersPages)].map((_, index) => {
+                            const pageNumber = index + 1;
+                            const isActive = pageNumber === currentUsersPage;
+
+                            if (
+                              pageNumber === 1 ||
+                              pageNumber === totalUsersPages ||
+                              (pageNumber >= currentUsersPage - 1 &&
+                                pageNumber <= currentUsersPage + 1)
+                            ) {
+                              return (
+                                <Button
+                                  key={pageNumber}
+                                  variant={isActive ? "default" : "ghost"}
+                                  size="sm"
+                                  className={`mx-1 w-10 h-10 rounded-full ${
+                                    isActive
+                                      ? "bg-primary text-primary-foreground"
+                                      : ""
+                                  }`}
+                                  onClick={() => paginateUsers(pageNumber)}
+                                  disabled={isActive}
+                                >
+                                  {pageNumber}
+                                </Button>
+                              );
+                            } else if (
+                              (pageNumber === currentUsersPage - 2 &&
+                                currentUsersPage > 3) ||
+                              (pageNumber === currentUsersPage + 2 &&
+                                currentUsersPage < totalUsersPages - 2)
+                            ) {
+                              return (
+                                <span
+                                  key={pageNumber}
+                                  className="px-2 text-muted-foreground"
+                                >
+                                  ...
+                                </span>
+                              );
+                            }
+                            return null;
+                          })}
+                        </div>
+
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={nextUsersPage}
+                          disabled={currentUsersPage === totalUsersPages}
+                          className="rounded-full"
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
                       </div>
-                    </motion.div>
-                  ))}
-                </div>
+
+                      <div className="text-sm text-muted-foreground bg-muted/10 px-4 py-2 rounded-full">
+                        Showing {indexOfFirstUser + 1}-
+                        {Math.min(indexOfLastUser, filteredUsers.length)} of{" "}
+                        {filteredUsers.length} users
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </TabsContent>
           </Tabs>

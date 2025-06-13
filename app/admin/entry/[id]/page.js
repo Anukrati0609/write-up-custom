@@ -217,7 +217,7 @@ export default function EntryDetailPage() {
               <div>
                 <h2 className="text-2xl font-bold text-white">{entry.title}</h2>
                 <div className="text-slate-400 mt-1">
-                  By {entry.authorName || "Unknown"} • {entry.year || "N/A"} •{" "}
+                  By {entry.authorName || "Unknown"} • {entry.year || "N/A"} •
                   {entry.branch || "N/A"}
                 </div>
                 <div className="mt-3 space-x-2">
@@ -343,7 +343,7 @@ export default function EntryDetailPage() {
                   <SectionHeading title="Voters" className="mb-3" />
                   <div className="bg-slate-800 p-4 rounded-lg border border-slate-700">
                     <div className="text-white">
-                      Total Voters:{" "}
+                      Total Voters:
                       <span className="font-bold">{entry.voters.length}</span>
                     </div>
                     <div className="mt-2 flex flex-wrap gap-2">

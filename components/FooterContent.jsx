@@ -56,13 +56,10 @@ const FooterContent = () => {
               className="text-white relative z-10 transition-transform duration-300 group-hover:scale-110"
               priority
             />
-          </div>{" "}
+          </div>
           <div>
             <h3 className="font-bold text-xl text-foreground">
-              <span className="relative inline-block">
-                Matrix{" "}
-                
-              </span>
+              <span className="relative inline-block">Matrix</span>
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400">
                 WriteItUp
               </span>
@@ -101,7 +98,7 @@ const FooterContent = () => {
               href="https://github.com/Matrix-JEC"
               icon={Github}
               label="GitHub"
-            />{" "}
+            />
             <SocialLink
               href="https://www.linkedin.com/in/matrix-jec-2574412ab"
               icon={Linkedin}
@@ -112,7 +109,7 @@ const FooterContent = () => {
               icon={Instagram}
               label="Instagram"
             />
-          </div>{" "}
+          </div>
           <AnimatedGradientBorder
             className="px-4 py-1.5 text-xs text-center md:text-right"
             borderRadius="rounded-full"

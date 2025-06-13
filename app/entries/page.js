@@ -225,8 +225,7 @@ export default function Entries() {
   }
   return (
     <main className="container mx-auto py-12 px-4 md:px-6">
-      {" "}
-      <Toaster />
+      <Toaster position="top-center" />
       <SectionHeading
         title="Competition Entries"
         subtitle="Browse and vote for your favorite entries in the Matrix WriteItUp competition"
@@ -269,7 +268,6 @@ export default function Entries() {
           }}
           className="mt-8"
         >
-          {" "}
           <TabsContent value="all">
             <motion.div
               className="pt-6"
@@ -296,7 +294,7 @@ export default function Entries() {
                   </motion.div>
                 ))}
               </div>
-            </motion.div>{" "}
+            </motion.div>
             {entries.length > entriesPerPage && (
               <div className="mt-12 flex flex-col items-center space-y-4">
                 <div className="flex items-center space-x-2">
@@ -369,7 +367,7 @@ export default function Entries() {
 
                 <div className="text-sm text-muted-foreground bg-muted/10 px-4 py-2 rounded-full">
                   Showing {indexOfFirstEntry + 1}-
-                  {Math.min(indexOfLastEntry, entries.length)} of{" "}
+                  {Math.min(indexOfLastEntry, entries.length)} of
                   {entries.length} entries
                 </div>
               </div>

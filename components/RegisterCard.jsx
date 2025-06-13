@@ -59,7 +59,7 @@ const RegisterCard = () => {
       </Link>
 
       <p className="text-center text-slate-400 text-sm mt-4">
-        Already registered?{" "}
+        Already registered?
         <Link href="/login" className="text-blue-400 hover:text-blue-300">
           Sign in
         </Link>

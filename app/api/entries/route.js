@@ -113,30 +113,36 @@ export async function GET(request) {
     const userId = searchParams.get("userId");
 
     // Ensure collections exist
-    await ensureCollectionsExist(); // Get all entries (excluding the current user's entry if userId is provided)
+    await ensureCollectionsExist();
+
     let entriesQuery;
 
     if (userId) {
+      // Get approved entries excluding the current user's entry
       entriesQuery = query(
         collection(db, "entries"),
+        where("status", "==", "approved"),
         where("userId", "!=", userId)
       );
     } else {
-      entriesQuery = collection(db, "entries");
+      // Get only approved entries
+      entriesQuery = query(
+        collection(db, "entries"),
+        where("status", "==", "approved")
+      );
     }
 
     const querySnapshot = await getDocs(entriesQuery);
+    // console.log('snao',querySnapshot) // Optional: for debugging
     const entries = [];
-
     querySnapshot.forEach((docSnap) => {
       const data = docSnap.data();
-      // Skip temporary documents
+      // Skip temporary documents if any (related to ensureCollectionsExist logic)
       if (data.temp) return;
 
       entries.push({
-        id: data.id,
-        userId: data.userId,
-        authorName: data.authorName,
+        id: data.id || docSnap.id, // Use data.id if present, otherwise docSnap.id
+        authorName: data.authorName, // Assuming authorName is stored
         year: data.year,
         branch: data.branch,
         title: data.title,
@@ -146,12 +152,15 @@ export async function GET(request) {
       });
     });
 
-    // Sort by votes (descending) then by creation date
+    // Sort by votes (descending) then by creation date (descending, newest first)
     entries.sort((a, b) => {
       if (b.votes !== a.votes) {
         return b.votes - a.votes;
       }
-      return new Date(b.createdAt) - new Date(a.createdAt);
+      // Ensure createdAt is valid Date object for comparison
+      const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+      const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+      return dateB - dateA;
     });
 
     return NextResponse.json({
