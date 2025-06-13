@@ -7,6 +7,7 @@ export const useAdminStore = create((set, get) => ({
   settings: null,
   entries: [],
   users: [],
+  timeline: null,
 
   // Admin state management
   setAdmin: (admin) => set({ admin, error: null }),
@@ -16,9 +17,59 @@ export const useAdminStore = create((set, get) => ({
   setEntries: (entries) => set({ entries }),
   setUsers: (users) => set({ users }),
   setSettings: (settings) => set({ settings }),
+  setTimeline: (timeline) => set({ timeline }),
 
   // Computed values
   isAuthenticated: () => !!get().admin,
+
+  // Timeline management
+  fetchTimeline: async () => {
+    set({ loading: true });
+    try {
+      const response = await fetch("/api/admin?action=timeline");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to fetch timeline");
+      }
+
+      set({ timeline: data.timeline, loading: false });
+      return data.timeline;
+    } catch (error) {
+      console.error("Fetch timeline error:", error);
+      set({ error: error.message, loading: false });
+      return null;
+    }
+  },
+
+  updateTimeline: async (timeline) => {
+    set({ loading: true });
+    try {
+      const response = await fetch("/api/admin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: "updateTimeline",
+          timeline,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to update timeline");
+      }
+
+      set({ timeline: data.timeline, loading: false });
+      return { success: true, timeline: data.timeline };
+    } catch (error) {
+      console.error("Update timeline error:", error);
+      set({ error: error.message, loading: false });
+      return { success: false, error: error.message };
+    }
+  },
 
   // Admin authentication
   adminLogin: async (email, password) => {

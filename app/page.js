@@ -33,6 +33,7 @@ import {
   Rocket,
   Check,
   Flame,
+  Timer,
 } from "lucide-react";
 
 // UI Components
@@ -81,6 +82,14 @@ import StatCounter from "@/components/ui/stat-counter";
 
 // Store
 import { useUserStore } from "@/store/useUserStore";
+
+// Timeline utilities
+import {
+  getTimeline,
+  getCurrentPhase,
+  getTimeRemainingInPhase,
+  formatTimeRemaining,
+} from "@/lib/timeline";
 
 export default function Home() {
   const {

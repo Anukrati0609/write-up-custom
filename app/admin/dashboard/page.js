@@ -15,6 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import TechBackground from "@/components/backgrounds/TechBackground";
 import { Input } from "@/components/ui/input";
 import EntryCard from "@/components/entries/EntryCard";
+import TimelineManager from "@/components/admin/TimelineManager";
 import {
   FileText,
   Users,
@@ -26,6 +27,7 @@ import {
   Award,
   ChevronLeft,
   ChevronRight,
+  Calendar,
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -37,10 +39,13 @@ export default function AdminDashboard() {
     entries,
     users,
     settings,
+    timeline,
     fetchAllEntries,
     fetchAllUsers,
     fetchSettings,
+    fetchTimeline,
     updateSettings,
+    updateTimeline,
     adminLogout,
     validateAdminSession,
   } = useAdminStore();
@@ -53,7 +58,6 @@ export default function AdminDashboard() {
   const [entrySortOrder, setEntrySortOrder] = useState("desc");
   const [showSettings, setShowSettings] = useState(false);
   const [topEntries, setTopEntries] = useState([]);
-  console.log('top ',topEntries)
   const [entriesViewTab, setEntriesViewTab] = useState("top");
 
   // Pagination states
@@ -71,7 +75,12 @@ export default function AdminDashboard() {
       }
 
       // Fetch initial data
-      await Promise.all([fetchAllEntries(), fetchAllUsers(), fetchSettings()]);
+      await Promise.all([
+        fetchAllEntries(),
+        fetchAllUsers(),
+        fetchSettings(),
+        fetchTimeline(),
+      ]);
     };
 
     checkAuth();
@@ -80,6 +89,7 @@ export default function AdminDashboard() {
     fetchAllEntries,
     fetchAllUsers,
     fetchSettings,
+    fetchTimeline,
     router,
   ]);
 
@@ -115,6 +125,17 @@ export default function AdminDashboard() {
       setShowSettings(false);
     } catch (error) {
       console.error("Failed to update settings:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleUpdateTimeline = async (timelineData) => {
+    setIsSaving(true);
+    try {
+      await updateTimeline(timelineData);
+    } catch (error) {
+      console.error("Failed to update timeline:", error);
     } finally {
       setIsSaving(false);
     }
@@ -439,6 +460,12 @@ export default function AdminDashboard() {
                 >
                   Users
                 </TabsTrigger>
+                <TabsTrigger
+                  value="timeline"
+                  className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white"
+                >
+                  Timeline
+                </TabsTrigger>
               </TabsList>
             </div>
 
@@ -665,218 +692,235 @@ export default function AdminDashboard() {
               </Tabs>
             </TabsContent>
 
-            <TabsContent value="users" className="p-6">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-                <SectionHeading title="All Users" className="mb-0" />
-
-                <Input
-                  type="text"
-                  placeholder="Search users..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="bg-slate-800 border-slate-700 text-white w-full md:w-[250px]"
-                />
+            <TabsContent value="users" className="p-6 space-y-4">
+              {/* Users tab content */}
+              <div className="flex justify-between items-center mb-6">
+                <div className="space-y-1">
+                  <h2 className="text-2xl font-bold">User Management</h2>
+                  <p className="text-muted-foreground">
+                    View and manage user accounts
+                  </p>
+                </div>
+                <div className="relative">
+                  <Search className="w-4 h-4 absolute top-3 left-3 text-slate-400" />
+                  <Input
+                    type="text"
+                    placeholder="Search users..."
+                    className="pl-10 bg-slate-800 border-slate-700 text-white w-64"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
               </div>
 
-              {loading ? (
-                <div className="flex items-center justify-center py-20">
-                  <div className="w-10 h-10 border-t-4 border-b-4 border-indigo-500 rounded-full animate-spin"></div>
-                </div>
-              ) : filteredUsers.length === 0 ? (
-                <div className="text-center py-10">
-                  {searchTerm ? (
-                    <p className="text-slate-400">
-                      No users found matching &apos;{searchTerm}&apos;
-                    </p>
-                  ) : (
-                    <p className="text-slate-400">No users found</p>
-                  )}
-                </div>
-              ) : (
-                <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {currentUsers.map((user) => (
-                      <motion.div
-                        key={user.uid}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="p-5 bg-slate-800 border border-slate-700 rounded-lg hover:bg-slate-700/50 transition-colors"
-                      >
-                        <div className="flex items-start gap-3">
-                          {user.photoURL ? (
-                            <Image
-                              src={user.photoURL}
-                              alt={user.displayName || "User"}
-                              width={48}
-                              height={48}
-                              className="h-12 w-12 rounded-full object-cover border-2 border-slate-600"
-                            />
-                          ) : (
-                            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center border-2 border-slate-600">
-                              <span className="text-white font-semibold text-lg">
-                                {(user.displayName || user.email || "U")
-                                  .charAt(0)
-                                  .toUpperCase()}
+              {/* Users list */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {currentUsers.map((user) => (
+                  <motion.div
+                    key={user.uid}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="p-5 bg-slate-800 border border-slate-700 rounded-lg hover:bg-slate-700/50 transition-colors"
+                  >
+                    <div className="flex items-start gap-3">
+                      {user.photoURL ? (
+                        <Image
+                          src={user.photoURL}
+                          alt={user.displayName || "User"}
+                          width={48}
+                          height={48}
+                          className="h-12 w-12 rounded-full object-cover border-2 border-slate-600"
+                        />
+                      ) : (
+                        <div className="h-12 w-12 rounded-full bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center border-2 border-slate-600">
+                          <span className="text-white font-semibold text-lg">
+                            {(user.displayName || user.email || "U")
+                              .charAt(0)
+                              .toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-white text-lg truncate">
+                          {user.displayName || "Unknown User"}
+                        </h3>
+                        <p className="text-sm text-slate-400 truncate">
+                          {user.email}
+                        </p>
+                        {user.createdAt && (
+                          <p className="text-xs text-slate-500 mt-1">
+                            Joined:{" "}
+                            {new Date(user.createdAt).toLocaleDateString()}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="mt-4 space-y-3">
+                      <div className="flex flex-wrap gap-2">
+                        <Badge
+                          className={
+                            user.is_submitted
+                              ? "bg-green-500/20 text-green-400 border-green-500/30"
+                              : "bg-slate-500/20 text-slate-400 border-slate-500/30"
+                          }
+                        >
+                          {user.is_submitted
+                            ? "✓ Submitted"
+                            : "○ Not Submitted"}
+                        </Badge>
+                        <Badge
+                          className={
+                            user.is_voted
+                              ? "bg-blue-500/20 text-blue-400 border-blue-500/30"
+                              : "bg-slate-500/20 text-slate-400 border-slate-500/30"
+                          }
+                        >
+                          {user.is_voted ? "✓ Voted" : "○ Not Voted"}
+                        </Badge>
+                      </div>
+
+                      {/* Additional user info */}
+                      <div className="pt-2 border-t border-slate-700">
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div>
+                            <span className="text-slate-500">Provider:</span>
+                            <span className="text-slate-300 ml-1 capitalize">
+                              {user.providerId || "Email"}
+                            </span>
+                          </div>
+                          {user.lastLoginAt && (
+                            <div>
+                              <span className="text-slate-500">
+                                Last Login:
+                              </span>
+                              <span className="text-slate-300 ml-1">
+                                {new Date(
+                                  user.lastLoginAt
+                                ).toLocaleDateString()}
                               </span>
                             </div>
                           )}
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-white text-lg truncate">
-                              {user.displayName || "Unknown User"}
-                            </h3>
-                            <p className="text-sm text-slate-400 truncate">
-                              {user.email}
-                            </p>
-                            {user.createdAt && (
-                              <p className="text-xs text-slate-500 mt-1">
-                                Joined:{" "}
-                                {new Date(user.createdAt).toLocaleDateString()}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="mt-4 space-y-3">
-                          <div className="flex flex-wrap gap-2">
-                            <Badge
-                              className={
-                                user.is_submitted
-                                  ? "bg-green-500/20 text-green-400 border-green-500/30"
-                                  : "bg-slate-500/20 text-slate-400 border-slate-500/30"
-                              }
-                            >
-                              {user.is_submitted
-                                ? "✓ Submitted"
-                                : "○ Not Submitted"}
-                            </Badge>
-                            <Badge
-                              className={
-                                user.is_voted
-                                  ? "bg-blue-500/20 text-blue-400 border-blue-500/30"
-                                  : "bg-slate-500/20 text-slate-400 border-slate-500/30"
-                              }
-                            >
-                              {user.is_voted ? "✓ Voted" : "○ Not Voted"}
-                            </Badge>
-                          </div>
-
-                          {/* Additional user info */}
-                          <div className="pt-2 border-t border-slate-700">
-                            <div className="grid grid-cols-2 gap-2 text-xs">
-                              <div>
-                                <span className="text-slate-500">
-                                  Provider:
-                                </span>
-                                <span className="text-slate-300 ml-1 capitalize">
-                                  {user.providerId || "Email"}
-                                </span>
-                              </div>
-                              {user.lastLoginAt && (
-                                <div>
-                                  <span className="text-slate-500">
-                                    Last Login:
-                                  </span>
-                                  <span className="text-slate-300 ml-1">
-                                    {new Date(
-                                      user.lastLoginAt
-                                    ).toLocaleDateString()}
-                                  </span>
-                                </div>
-                              )}
-                              {user.uid && (
-                                <div className="col-span-2">
-                                  <span className="text-slate-500">UID:</span>
-                                  <span className="text-slate-300 ml-1 font-mono text-xs">
-                                    {user.uid.substring(0, 8)}...
-                                  </span>
-                                </div>
-                              )}
+                          {user.uid && (
+                            <div className="col-span-2">
+                              <span className="text-slate-500">UID:</span>
+                              <span className="text-slate-300 ml-1 font-mono text-xs">
+                                {user.uid.substring(0, 8)}...
+                              </span>
                             </div>
-                          </div>
+                          )}
                         </div>
-                      </motion.div>
-                    ))}
-                  </div>
-
-                  {/* Users Pagination */}
-                  {filteredUsers.length > usersPerPage && (
-                    <div className="mt-8 flex flex-col items-center space-y-4">
-                      <div className="flex items-center space-x-2">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={prevUsersPage}
-                          disabled={currentUsersPage === 1}
-                          className="rounded-full"
-                        >
-                          <ChevronLeft className="h-4 w-4" />
-                        </Button>
-
-                        <div className="flex items-center bg-muted/20 rounded-full px-3 py-1">
-                          {[...Array(totalUsersPages)].map((_, index) => {
-                            const pageNumber = index + 1;
-                            const isActive = pageNumber === currentUsersPage;
-
-                            if (
-                              pageNumber === 1 ||
-                              pageNumber === totalUsersPages ||
-                              (pageNumber >= currentUsersPage - 1 &&
-                                pageNumber <= currentUsersPage + 1)
-                            ) {
-                              return (
-                                <Button
-                                  key={pageNumber}
-                                  variant={isActive ? "default" : "ghost"}
-                                  size="sm"
-                                  className={`mx-1 w-10 h-10 rounded-full ${
-                                    isActive
-                                      ? "bg-primary text-primary-foreground"
-                                      : ""
-                                  }`}
-                                  onClick={() => paginateUsers(pageNumber)}
-                                  disabled={isActive}
-                                >
-                                  {pageNumber}
-                                </Button>
-                              );
-                            } else if (
-                              (pageNumber === currentUsersPage - 2 &&
-                                currentUsersPage > 3) ||
-                              (pageNumber === currentUsersPage + 2 &&
-                                currentUsersPage < totalUsersPages - 2)
-                            ) {
-                              return (
-                                <span
-                                  key={pageNumber}
-                                  className="px-2 text-muted-foreground"
-                                >
-                                  ...
-                                </span>
-                              );
-                            }
-                            return null;
-                          })}
-                        </div>
-
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={nextUsersPage}
-                          disabled={currentUsersPage === totalUsersPages}
-                          className="rounded-full"
-                        >
-                          <ChevronRight className="h-4 w-4" />
-                        </Button>
-                      </div>
-
-                      <div className="text-sm text-muted-foreground bg-muted/10 px-4 py-2 rounded-full">
-                        Showing {indexOfFirstUser + 1}-
-                        {Math.min(indexOfLastUser, filteredUsers.length)} of{" "}
-                        {filteredUsers.length} users
                       </div>
                     </div>
-                  )}
-                </>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Users Pagination */}
+              {filteredUsers.length > usersPerPage && (
+                <div className="mt-8 flex flex-col items-center space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={prevUsersPage}
+                      disabled={currentUsersPage === 1}
+                      className="rounded-full"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+
+                    <div className="flex items-center bg-muted/20 rounded-full px-3 py-1">
+                      {[...Array(totalUsersPages)].map((_, index) => {
+                        const pageNumber = index + 1;
+                        const isActive = pageNumber === currentUsersPage;
+
+                        if (
+                          pageNumber === 1 ||
+                          pageNumber === totalUsersPages ||
+                          (pageNumber >= currentUsersPage - 1 &&
+                            pageNumber <= currentUsersPage + 1)
+                        ) {
+                          return (
+                            <Button
+                              key={pageNumber}
+                              variant={isActive ? "default" : "ghost"}
+                              size="sm"
+                              className={`mx-1 w-10 h-10 rounded-full ${
+                                isActive
+                                  ? "bg-primary text-primary-foreground"
+                                  : ""
+                              }`}
+                              onClick={() => paginateUsers(pageNumber)}
+                              disabled={isActive}
+                            >
+                              {pageNumber}
+                            </Button>
+                          );
+                        } else if (
+                          (pageNumber === currentUsersPage - 2 &&
+                            currentUsersPage > 3) ||
+                          (pageNumber === currentUsersPage + 2 &&
+                            currentUsersPage < totalUsersPages - 2)
+                        ) {
+                          return (
+                            <span
+                              key={pageNumber}
+                              className="px-2 text-muted-foreground"
+                            >
+                              ...
+                            </span>
+                          );
+                        }
+                        return null;
+                      })}
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={nextUsersPage}
+                      disabled={currentUsersPage === totalUsersPages}
+                      className="rounded-full"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  <div className="text-sm text-muted-foreground bg-muted/10 px-4 py-2 rounded-full">
+                    Showing {indexOfFirstUser + 1}-
+                    {Math.min(indexOfLastUser, filteredUsers.length)} of{" "}
+                    {filteredUsers.length} users
+                  </div>
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="timeline" className="p-6">
+              <div className="space-y-1 mb-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold flex items-center gap-2">
+                      <Calendar className="w-6 h-6 text-indigo-400" />
+                      Timeline Management
+                    </h2>
+                    <p className="text-muted-foreground">
+                      Configure competition phases and deadlines
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {timeline ? (
+                <TimelineManager
+                  timeline={timeline}
+                  onSave={handleUpdateTimeline}
+                  loading={loading || isSaving}
+                />
+              ) : (
+                <div className="flex items-center justify-center p-12">
+                  <p className="text-slate-400">Loading timeline data...</p>
+                </div>
               )}
             </TabsContent>
           </Tabs>

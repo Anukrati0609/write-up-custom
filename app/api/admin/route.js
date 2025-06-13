@@ -250,6 +250,51 @@ export async function GET(request) {
           entry,
         });
 
+      case "timeline":
+        try {
+          const timelineRef = doc(db, "settings", "timeline");
+          const timelineDoc = await getDoc(timelineRef);
+
+          let timeline = null;
+
+          if (!timelineDoc.exists()) {
+            // Create default timeline
+            const defaultTimeline = {
+              registrationStart: new Date().toISOString(),
+              registrationEnd: new Date(
+                Date.now() + 14 * 24 * 60 * 60 * 1000
+              ).toISOString(), // 2 weeks from now
+              submissionStart: new Date().toISOString(),
+              submissionEnd: new Date(
+                Date.now() + 30 * 24 * 60 * 60 * 1000
+              ).toISOString(), // 30 days from now
+              votingStart: new Date(
+                Date.now() + 31 * 24 * 60 * 60 * 1000
+              ).toISOString(), // 31 days from now
+              votingEnd: new Date(
+                Date.now() + 45 * 24 * 60 * 60 * 1000
+              ).toISOString(), // 45 days from now
+              resultsDate: new Date(
+                Date.now() + 46 * 24 * 60 * 60 * 1000
+              ).toISOString(), // 46 days from now
+              updatedAt: new Date().toISOString(),
+            };
+
+            await setDoc(timelineRef, defaultTimeline);
+            timeline = defaultTimeline;
+          } else {
+            timeline = timelineDoc.data();
+          }
+
+          return NextResponse.json({ timeline });
+        } catch (error) {
+          console.error("Error fetching timeline:", error);
+          return NextResponse.json(
+            { error: "Failed to fetch timeline" },
+            { status: 500 }
+          );
+        }
+
       default:
         return NextResponse.json(
           {
@@ -288,6 +333,40 @@ export async function POST(request) {
           message: "Collections initialization completed",
           results,
         });
+
+      case "updateTimeline":
+        // Update the timeline settings
+        const { timeline } = requestBody;
+
+        if (!timeline) {
+          return NextResponse.json(
+            { error: "Timeline data is required" },
+            { status: 400 }
+          );
+        }
+
+        try {
+          const timelineRef = doc(db, "settings", "timeline");
+          await setDoc(timelineRef, {
+            ...timeline,
+            updatedAt: new Date().toISOString(),
+          });
+
+          // Fetch the updated timeline
+          const updatedTimelineDoc = await getDoc(timelineRef);
+          const updatedTimeline = updatedTimelineDoc.data();
+
+          return NextResponse.json({
+            success: true,
+            timeline: updatedTimeline,
+          });
+        } catch (error) {
+          console.error("Failed to update timeline:", error);
+          return NextResponse.json(
+            { error: "Failed to update timeline" },
+            { status: 500 }
+          );
+        }
 
       case "updateEntryStatus":
         // Update an entry's status (approve/reject)
