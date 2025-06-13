@@ -66,9 +66,7 @@ export async function POST(request) {
         { error: "You have already submitted an entry" },
         { status: 400 }
       );
-    }
-
-    // Create entry document
+    } // Create entry document
     const entryId = `entry_${userId}`;
     const entryDocRef = doc(db, "entries", entryId);
     const entryData = {
@@ -81,6 +79,7 @@ export async function POST(request) {
       content,
       votes: 0,
       voters: [],
+      status: "pending", // Add default status for admin approval
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -115,30 +114,22 @@ export async function GET(request) {
     // Ensure collections exist
     await ensureCollectionsExist();
 
-    let entriesQuery;
-
-    if (userId) {
-      // Get approved entries excluding the current user's entry
-      entriesQuery = query(
-        collection(db, "entries"),
-        where("status", "==", "approved"),
-        where("userId", "!=", userId)
-      );
-    } else {
-      // Get only approved entries
-      entriesQuery = query(
-        collection(db, "entries"),
-        where("status", "==", "approved")
-      );
-    }
+    // Get only approved entries first (single where clause)
+    const entriesQuery = query(
+      collection(db, "entries"),
+      where("status", "==", "approved")
+    );
 
     const querySnapshot = await getDocs(entriesQuery);
-    // console.log('snao',querySnapshot) // Optional: for debugging
     const entries = [];
+
     querySnapshot.forEach((docSnap) => {
       const data = docSnap.data();
       // Skip temporary documents if any (related to ensureCollectionsExist logic)
       if (data.temp) return;
+
+      // If userId is provided, exclude the current user's entry
+      if (userId && data.userId === userId) return;
 
       entries.push({
         id: data.id || docSnap.id, // Use data.id if present, otherwise docSnap.id

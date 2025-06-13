@@ -376,33 +376,53 @@ export default function Home() {
       color: "from-amber-500 to-orange-500",
     },
   ];
-
   // Timeline data
   const timelineEvents = [
     {
       date: "June 11, 2025",
       title: "Registrations Open",
-      status: "active",
+      description:
+        "Registration portal opens for all participants. Early bird registrations get special benefits.",
+      icon: <FileText className="h-5 w-5 text-blue-400" />,
+      status: "completed",
+      color: "blue",
     },
     {
       date: "June 14, 2025",
       title: "Last Day for Registration",
-      status: "upcoming",
+      description:
+        "Final day to complete your registration and become eligible for the competition.",
+      icon: <Clock className="h-5 w-5 text-amber-400" />,
+      status: "active",
+      color: "amber",
+      highlight: true,
     },
     {
       date: "June 15, 2025",
       title: "Competition Starts",
+      description:
+        "All registered participants receive the topic and guidelines. Start creating your masterpiece!",
+      icon: <Rocket className="h-5 w-5 text-green-400" />,
       status: "upcoming",
+      color: "green",
     },
     {
       date: "June 30, 2025",
       title: "Competition Ends",
+      description:
+        "Final submission deadline. All entries must be submitted by 11:59 PM.",
+      icon: <Check className="h-5 w-5 text-purple-400" />,
       status: "upcoming",
+      color: "purple",
     },
     {
       date: "July 7, 2025",
       title: "Results Announcement",
+      description:
+        "Winners and honorable mentions will be announced on our website and social media channels.",
+      icon: <Award className="h-5 w-5 text-emerald-400" />,
       status: "upcoming",
+      color: "emerald",
     },
   ];
 
@@ -763,7 +783,7 @@ export default function Home() {
             ))}
           </motion.div>
         </div>
-      </section>
+      </section>{" "}
       {/* Timeline Section */}
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 -z-30">
@@ -790,7 +810,14 @@ export default function Home() {
                   Competition Timeline
                 </span>
               }
-              subtitle="Important dates and milestones"
+              subtitle={
+                <span className="flex items-center justify-center space-x-2">
+                  <Clock className="h-4 w-4 text-primary animate-pulse" />
+                  <span>
+                    Today is June 13, 2025 - Registration closes tomorrow!
+                  </span>
+                </span>
+              }
             />
           </motion.div>
 
@@ -803,6 +830,22 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ duration: 1.5 }}
             ></motion.div>
+
+            {/* Current date indicator */}
+            <motion.div
+              className="absolute left-1/2 transform -translate-x-1/2 z-20 flex flex-col items-center"
+              initial={{ opacity: 0, y: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.5, duration: 0.8 }}
+              style={{ top: "30%" }}
+            >
+              <div className="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full text-xs font-medium text-white shadow-lg shadow-amber-500/30 flex items-center space-x-1.5">
+                <div className="w-2 h-2 bg-white rounded-full animate-ping" />
+                <span>Today</span>
+              </div>
+              <div className="h-6 w-0.5 bg-amber-500" />
+            </motion.div>
 
             {/* Timeline events */}
             {timelineEvents.map((event, index) => (
@@ -820,60 +863,260 @@ export default function Home() {
                   } items-center`}
                 >
                   <div
-                    className={`w-1/2 px-10 ${
+                    className={`w-1/2 px-6 lg:px-10 ${
                       index % 2 === 0 ? "text-right" : "text-left"
                     }`}
                   >
-                    <GlassMorphism
-                      className={`p-4 ${
-                        index % 2 === 0 ? "ml-auto" : "mr-auto"
-                      } max-w-xs shadow-xl border-white/5`}
-                      blur="md"
+                    <motion.div
+                      whileHover={{ scale: 1.03 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 10,
+                      }}
                     >
-                      <h3
-                        className={`text-xl font-bold mb-2 ${
-                          event.status === "active"
-                            ? "bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400"
+                      {" "}
+                      <GlassMorphism
+                        className={`p-5 ${
+                          index % 2 === 0 ? "ml-auto" : "mr-auto"
+                        } max-w-xs shadow-xl ${
+                          event.highlight && event.color === "amber"
+                            ? "border border-amber-500/30"
+                            : event.highlight && event.color === "blue"
+                            ? "border border-blue-500/30"
+                            : event.highlight && event.color === "green"
+                            ? "border border-green-500/30"
+                            : event.highlight && event.color === "purple"
+                            ? "border border-purple-500/30"
+                            : event.highlight && event.color === "emerald"
+                            ? "border border-emerald-500/30"
+                            : "border-white/5"
+                        } ${
+                          event.status === "active" && event.color === "amber"
+                            ? "shadow-amber-500/20"
+                            : event.status === "active" &&
+                              event.color === "blue"
+                            ? "shadow-blue-500/20"
+                            : event.status === "active" &&
+                              event.color === "green"
+                            ? "shadow-green-500/20"
+                            : event.status === "active" &&
+                              event.color === "purple"
+                            ? "shadow-purple-500/20"
+                            : event.status === "active" &&
+                              event.color === "emerald"
+                            ? "shadow-emerald-500/20"
                             : ""
                         }`}
+                        blur="md"
                       >
-                        {event.title}
-                      </h3>
-                      <p className="text-white/60 text-sm flex items-center gap-2">
-                        <Calendar className="h-3.5 w-3.5 text-primary" />
-                        {event.date}
-                      </p>
-                    </GlassMorphism>
-                  </div>
+                        <div className="flex items-center gap-3 mb-3">
+                          <div
+                            className={`p-2 rounded-lg flex items-center justify-center ${
+                              index % 2 === 0 ? "order-last ml-auto" : ""
+                            } ${
+                              event.color === "amber"
+                                ? "bg-amber-500/20"
+                                : event.color === "blue"
+                                ? "bg-blue-500/20"
+                                : event.color === "green"
+                                ? "bg-green-500/20"
+                                : event.color === "purple"
+                                ? "bg-purple-500/20"
+                                : event.color === "emerald"
+                                ? "bg-emerald-500/20"
+                                : ""
+                            }`}
+                          >
+                            {event.icon}
+                          </div>
+                          <Badge
+                            className={`${
+                              event.status === "completed"
+                                ? "bg-green-500/20 text-green-300 border-green-500/30"
+                                : event.status === "active" &&
+                                  event.color === "amber"
+                                ? "bg-amber-500/20 text-amber-300 border-amber-500/30"
+                                : event.status === "active" &&
+                                  event.color === "blue"
+                                ? "bg-blue-500/20 text-blue-300 border-blue-500/30"
+                                : event.status === "active" &&
+                                  event.color === "green"
+                                ? "bg-green-500/20 text-green-300 border-green-500/30"
+                                : event.status === "active" &&
+                                  event.color === "purple"
+                                ? "bg-purple-500/20 text-purple-300 border-purple-500/30"
+                                : event.status === "active" &&
+                                  event.color === "emerald"
+                                ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                                : "bg-gray-500/20 text-gray-300 border-gray-500/30"
+                            } px-2 py-1 text-xs`}
+                          >
+                            {event.status === "completed"
+                              ? "Completed"
+                              : event.status === "active"
+                              ? "Current"
+                              : "Upcoming"}
+                          </Badge>
+                        </div>
 
+                        <h3
+                          className={`text-xl font-bold mb-2 ${
+                            event.status !== "upcoming" &&
+                            event.color === "amber"
+                              ? "bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-300"
+                              : event.status !== "upcoming" &&
+                                event.color === "blue"
+                              ? "bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-blue-300"
+                              : event.status !== "upcoming" &&
+                                event.color === "green"
+                              ? "bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-green-300"
+                              : event.status !== "upcoming" &&
+                                event.color === "purple"
+                              ? "bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-purple-300"
+                              : event.status !== "upcoming" &&
+                                event.color === "emerald"
+                              ? "bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-emerald-300"
+                              : ""
+                          }`}
+                        >
+                          {event.title}
+                        </h3>
+
+                        <p className="text-white/70 text-sm mb-3">
+                          {event.description}
+                        </p>
+
+                        <div className="flex items-center gap-2 text-white/60 text-sm mt-4">
+                          <Calendar
+                            className={`h-3.5 w-3.5 ${
+                              event.color === "amber"
+                                ? "text-amber-400"
+                                : event.color === "blue"
+                                ? "text-blue-400"
+                                : event.color === "green"
+                                ? "text-green-400"
+                                : event.color === "purple"
+                                ? "text-purple-400"
+                                : event.color === "emerald"
+                                ? "text-emerald-400"
+                                : ""
+                            }`}
+                          />
+                          <span className="font-medium">{event.date}</span>
+                        </div>
+
+                        {event.status === "active" && (
+                          <div className="mt-4 pt-3 border-t border-white/10">
+                            <TechButton
+                              size="sm"
+                              variant="outline"
+                              className="w-full text-xs"
+                            >
+                              <Link href="/register">Register Now</Link>
+                            </TechButton>
+                          </div>
+                        )}
+                      </GlassMorphism>
+                    </motion.div>
+                  </div>{" "}
                   <motion.div
-                    className="absolute left-1/2 transform -translate-x-1/2 w-12 h-12 z-10"
-                    whileHover={{ scale: 1.2 }}
+                    className="absolute left-1/2 transform -translate-x-1/2 w-14 h-14 z-10"
+                    whileHover={{
+                      scale: 1.2,
+                      rotate: event.status === "completed" ? 360 : 0,
+                    }}
                     transition={{ type: "spring", stiffness: 400, damping: 10 }}
                   >
                     <AnimatedGradientBorder
                       borderRadius="rounded-full"
                       gradientColors={
-                        event.status === "active"
-                          ? "from-blue-500 via-primary to-blue-500"
+                        event.status === "completed"
+                          ? "from-green-500 via-green-400 to-green-500"
+                          : event.status === "active" && event.color === "amber"
+                          ? "from-amber-500 via-amber-400 to-amber-500"
+                          : event.status === "active" && event.color === "blue"
+                          ? "from-blue-500 via-blue-400 to-blue-500"
+                          : event.status === "active" && event.color === "green"
+                          ? "from-green-500 via-green-400 to-green-500"
+                          : event.status === "active" &&
+                            event.color === "purple"
+                          ? "from-purple-500 via-purple-400 to-purple-500"
+                          : event.status === "active" &&
+                            event.color === "emerald"
+                          ? "from-emerald-500 via-emerald-400 to-emerald-500"
                           : "from-gray-600 via-gray-500 to-gray-600"
                       }
                       borderWidth="3px"
-                      animationDuration={event.status === "active" ? 3 : 0}
+                      animationDuration={event.status !== "upcoming" ? 3 : 0}
                       containerClassName="h-full w-full"
                     >
                       <div className="h-full w-full rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center">
-                        {event.status === "active" ? (
-                          <div className="w-4 h-4 bg-blue-500 rounded-full animate-pulse" />
+                        {event.status === "completed" ? (
+                          <Check className="h-6 w-6 text-green-400" />
+                        ) : event.status === "active" ? (
+                          <div
+                            className={`w-4 h-4 rounded-full animate-pulse ${
+                              event.color === "amber"
+                                ? "bg-amber-500"
+                                : event.color === "blue"
+                                ? "bg-blue-500"
+                                : event.color === "green"
+                                ? "bg-green-500"
+                                : event.color === "purple"
+                                ? "bg-purple-500"
+                                : event.color === "emerald"
+                                ? "bg-emerald-500"
+                                : ""
+                            }`}
+                          />
                         ) : (
                           <div className="w-3 h-3 bg-gray-400/70 rounded-full" />
                         )}
                       </div>
                     </AnimatedGradientBorder>
                   </motion.div>
-
-                  <div className="w-1/2 px-10"></div>
+                  <div className="w-1/2 px-6 lg:px-10"></div>
                 </div>
+                {/* Connecting line to next item */}
+                {index < timelineEvents.length - 1 && (
+                  <motion.div
+                    className="absolute left-1/2 transform -translate-x-1/2 z-5 w-1"
+                    style={{
+                      top: "100%",
+                      height: "2rem",
+                      background: `linear-gradient(to bottom, ${
+                        event.status !== "upcoming"
+                          ? event.color === "amber"
+                            ? "#f59e0b"
+                            : event.color === "blue"
+                            ? "#3b82f6"
+                            : event.color === "green"
+                            ? "#10b981"
+                            : event.color === "purple"
+                            ? "#8b5cf6"
+                            : event.color === "emerald"
+                            ? "#10b981"
+                            : "#4b5563"
+                          : "#4b5563"
+                      } 0%, ${
+                        timelineEvents[index + 1].status !== "upcoming"
+                          ? timelineEvents[index + 1].color === "amber"
+                            ? "#f59e0b"
+                            : timelineEvents[index + 1].color === "blue"
+                            ? "#3b82f6"
+                            : timelineEvents[index + 1].color === "green"
+                            ? "#10b981"
+                            : timelineEvents[index + 1].color === "purple"
+                            ? "#8b5cf6"
+                            : timelineEvents[index + 1].color === "emerald"
+                            ? "#10b981"
+                            : "#4b5563"
+                          : "#4b5563"
+                      } 100%)`,
+                    }}
+                  />
+                )}
               </motion.div>
             ))}
           </div>
