@@ -4,7 +4,14 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useUserStore } from "@/store/useUserStore";
 import Link from "next/link";
-import { FileText, ThumbsUp, TrendingUp, Award } from "lucide-react";
+import {
+  FileText,
+  ThumbsUp,
+  TrendingUp,
+  Award,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import AnimatedCard from "@/components/ui/animated-card";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Badge } from "@/components/ui/badge";
@@ -29,12 +36,13 @@ export default function Entries() {
   const [loadingEntries, setLoadingEntries] = useState(true);
   const [votingFor, setVotingFor] = useState(null);
   const [currentTab, setCurrentTab] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [entriesPerPage] = useState(8); // Increased for better horizontal display
 
   useEffect(() => {
     const unsubscribe = initializeAuth();
     return unsubscribe;
   }, [initializeAuth]);
-
   useEffect(() => {
     const fetchEntries = async () => {
       setLoadingEntries(true);
@@ -42,8 +50,10 @@ export default function Entries() {
         const result = await getEntries();
         if (result.success) {
           setEntries(result.entries);
+          setCurrentPage(1); // Reset pagination when fetching new entries
+          setTopCurrentPage(1); // Reset top entries pagination
 
-          // Get top 5 entries by votes
+          // Get top 5 entries by votes (for featured display)
           const top = [...result.entries]
             .sort((a, b) => b.votes - a.votes)
             .slice(0, 5);
@@ -58,13 +68,14 @@ export default function Entries() {
 
     fetchEntries();
   }, [user, getEntries]);
-
   const refreshEntries = async () => {
     setLoadingEntries(true);
     try {
       const result = await getEntries();
       if (result.success) {
         setEntries(result.entries);
+        setCurrentPage(1); // Reset to first page when refreshing entries
+        setTopCurrentPage(1); // Reset top entries pagination
 
         // Refresh top entries
         const top = [...result.entries]
@@ -145,6 +156,60 @@ export default function Entries() {
       },
     },
   };
+  // Pagination logic
+  const indexOfLastEntry = currentPage * entriesPerPage;
+  const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
+  const currentEntries = entries.slice(indexOfFirstEntry, indexOfLastEntry);
+  const totalPages = Math.ceil(entries.length / entriesPerPage); // Top entries pagination logic
+  const [topCurrentPage, setTopCurrentPage] = useState(1);
+  const topEntriesPerPage = 8; // Increased for better horizontal display
+  const indexOfLastTopEntry = topCurrentPage * topEntriesPerPage;
+  const indexOfFirstTopEntry = indexOfLastTopEntry - topEntriesPerPage;
+  // Get all entries sorted by votes instead of just top 5
+  const allTopEntries = [...entries].sort((a, b) => b.votes - a.votes);
+  const currentTopEntries = allTopEntries.slice(
+    indexOfFirstTopEntry,
+    indexOfLastTopEntry
+  );
+  const topTotalPages = Math.ceil(allTopEntries.length / topEntriesPerPage);
+
+  const paginateTop = (pageNumber) => {
+    setTopCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const nextTopPage = () => {
+    if (topCurrentPage < topTotalPages) {
+      setTopCurrentPage(topCurrentPage + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const prevTopPage = () => {
+    if (topCurrentPage > 1) {
+      setTopCurrentPage(topCurrentPage - 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const nextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   if (loadingEntries) {
     return (
@@ -158,15 +223,14 @@ export default function Entries() {
       </div>
     );
   }
-
   return (
     <main className="container mx-auto py-12 px-4 md:px-6">
+      {" "}
       <Toaster />
       <SectionHeading
         title="Competition Entries"
         subtitle="Browse and vote for your favorite entries in the Matrix WriteItUp competition"
       />
-
       {user && hasVoted() && (
         <motion.div
           className="max-w-md mx-auto mb-8 text-center"
@@ -180,7 +244,6 @@ export default function Entries() {
           </Badge>
         </motion.div>
       )}
-
       {entries.length === 0 ? (
         <AnimatedCard
           className="p-8 text-center max-w-md mx-auto"
@@ -199,84 +262,121 @@ export default function Entries() {
         <Tabs
           defaultValue="all"
           value={currentTab}
-          onValueChange={setCurrentTab}
+          onValueChange={(value) => {
+            setCurrentTab(value);
+            setCurrentPage(1); // Reset to first page when changing tabs
+            setTopCurrentPage(1); // Also reset top entries pagination
+          }}
           className="mt-8"
         >
-          <div className="flex justify-center mb-6">
-            <TabsList className="grid grid-cols-2 w-[400px]">
-              <TabsTrigger value="all" className="flex items-center gap-2">
-                <FileText className="w-4 h-4" />
-                All Entries
-              </TabsTrigger>
-              <TabsTrigger value="top" className="flex items-center gap-2">
-                <Award className="w-4 h-4" />
-                Top 5 Entries
-              </TabsTrigger>
-            </TabsList>
-          </div>
-
+          {" "}
           <TabsContent value="all">
             <motion.div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              className="pt-6"
               variants={containerVariants}
               initial="hidden"
               animate="visible"
             >
-              {entries.map((entry) => (
-                <motion.div key={entry.id} variants={fadeInUp}>
-                  <EntryCard
-                    entry={entry}
-                    user={user}
-                    hasVoted={hasVoted}
-                    votingFor={votingFor}
-                    handleVote={handleVote}
-                  />
-                </motion.div>
-              ))}
-            </motion.div>
-          </TabsContent>
-
-          <TabsContent value="top">
-            <div className="mb-6">
-              <div className="flex items-center gap-2 mb-4">
-                <TrendingUp className="w-5 h-5 text-primary" />
-                <h3 className="text-xl font-semibold">
-                  Top 5 Entries by Votes
-                </h3>
-              </div>
-              <p className="text-muted-foreground">
-                These are the highest-voted entries in the competition so far
-              </p>
-            </div>
-
-            <motion.div
-              className="grid grid-cols-1 gap-6 max-w-4xl mx-auto"
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-            >
-              {topEntries.map((entry, index) => (
-                <motion.div key={entry.id} variants={fadeInUp}>
-                  <div className="relative">
-                    <div className="absolute -left-4 -top-3 w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-black font-bold z-10">
-                      #{index + 1}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {currentEntries.map((entry, index) => (
+                  <motion.div key={entry.id} variants={fadeInUp}>
+                    <div className="relative">
+                      <div className="absolute -left-3 -top-3 w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold z-10">
+                        #{indexOfFirstEntry + index + 1}
+                      </div>
+                      <EntryCard
+                        entry={entry}
+                        user={user}
+                        hasVoted={hasVoted}
+                        votingFor={votingFor}
+                        handleVote={handleVote}
+                        className="pl-2"
+                      />
                     </div>
-                    <EntryCard
-                      entry={{ ...entry, featured: index === 0 }}
-                      user={user}
-                      hasVoted={hasVoted}
-                      votingFor={votingFor}
-                      handleVote={handleVote}
-                      className="pl-5"
-                    />
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>{" "}
+            {entries.length > entriesPerPage && (
+              <div className="mt-12 flex flex-col items-center space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={prevPage}
+                    disabled={currentPage === 1}
+                    className="rounded-full"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+
+                  <div className="flex items-center bg-muted/20 rounded-full px-3 py-1">
+                    {[...Array(totalPages)].map((_, index) => {
+                      const pageNumber = index + 1;
+                      const isActive = pageNumber === currentPage;
+
+                      // Show limited page numbers with ellipsis for better UX
+                      if (
+                        pageNumber === 1 ||
+                        pageNumber === totalPages ||
+                        (pageNumber >= currentPage - 1 &&
+                          pageNumber <= currentPage + 1)
+                      ) {
+                        return (
+                          <Button
+                            key={pageNumber}
+                            variant={isActive ? "default" : "ghost"}
+                            size="sm"
+                            className={`mx-1 w-10 h-10 rounded-full ${
+                              isActive
+                                ? "bg-primary text-primary-foreground"
+                                : ""
+                            }`}
+                            onClick={() => paginate(pageNumber)}
+                            disabled={isActive}
+                          >
+                            {pageNumber}
+                          </Button>
+                        );
+                      } else if (
+                        (pageNumber === currentPage - 2 && currentPage > 3) ||
+                        (pageNumber === currentPage + 2 &&
+                          currentPage < totalPages - 2)
+                      ) {
+                        return (
+                          <span
+                            key={pageNumber}
+                            className="px-2 text-muted-foreground"
+                          >
+                            ...
+                          </span>
+                        );
+                      }
+                      return null;
+                    })}
                   </div>
-                </motion.div>
-              ))}
-            </motion.div>
+
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={nextPage}
+                    disabled={currentPage === totalPages}
+                    className="rounded-full"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                <div className="text-sm text-muted-foreground bg-muted/10 px-4 py-2 rounded-full">
+                  Showing {indexOfFirstEntry + 1}-
+                  {Math.min(indexOfLastEntry, entries.length)} of{" "}
+                  {entries.length} entries
+                </div>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       )}
-
       <div className="mt-12 text-center">
         <Link href="/">
           <Button variant="outline">Back to Home</Button>

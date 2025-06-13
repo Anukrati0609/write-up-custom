@@ -21,6 +21,7 @@ import {
   Star,
   Clock,
   ChevronRight,
+  ChevronLeft,
   LightbulbIcon,
   BrainCircuit,
   PenTool,
@@ -96,6 +97,32 @@ export default function Home() {
   const [statsVisible, setStatsVisible] = useState(false);
   const [votingFor, setVotingFor] = useState(null);
   const [activeTab, setActiveTab] = useState("top");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [entriesPerPage] = useState(5);
+  const [allTopEntries, setAllTopEntries] = useState([]);
+
+  // Show only top 5 entries without pagination
+  const currentTopEntries = allTopEntries.slice(0, 5);
+  const totalPages = Math.ceil(allTopEntries.length / entriesPerPage);
+
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const nextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = initializeAuth();
@@ -131,6 +158,7 @@ export default function Home() {
 
           // Set all entries for later use
           setEntries(sortedEntries);
+          setAllTopEntries(sortedEntries);
         }
       } catch (error) {
         console.error("Error fetching entries:", error);
@@ -141,11 +169,13 @@ export default function Home() {
 
     fetchEntries();
   }, [getEntries, user]);
-
   const refreshEntries = async () => {
     try {
       const result = await getEntries();
       if (result.success) {
+        // Reset pagination
+        setCurrentPage(1);
+
         // Filter out user's own entry
         const filteredEntries = user
           ? result.entries.filter((entry) => entry.userId !== user.uid)
@@ -156,11 +186,12 @@ export default function Home() {
           (a, b) => b.votes - a.votes
         );
 
-        // Set top 5 entries
+        // Set top 5 entries (for featured display)
         setTopEntries(sortedEntries.slice(0, 5));
 
         // Set all entries
         setEntries(sortedEntries);
+        setAllTopEntries(sortedEntries);
       }
     } catch (error) {
       console.error("Error fetching entries:", error);
@@ -894,7 +925,7 @@ export default function Home() {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.4 }}
-              className="w-full max-w-lg mt-10"
+              className="w-full mt-10"
             >
               <GlassMorphism className="p-1 rounded-full backdrop-blur-lg">
                 <Tabs defaultValue="top" className="w-full">
@@ -911,7 +942,7 @@ export default function Home() {
                     >
                       <Clock className="h-4 w-4 mr-2" /> Recent Entries
                     </TabsTrigger>
-                  </TabsList>
+                  </TabsList>{" "}
                   <TabsContent value="top">
                     {loadingEntries ? (
                       <div className="flex justify-center items-center py-16">
@@ -940,100 +971,115 @@ export default function Home() {
                       </motion.div>
                     ) : (
                       <motion.div
-                        className="grid gap-6 pt-6"
+                        className="pt-6"
                         variants={containerVariants}
                         initial="hidden"
                         animate="visible"
                       >
-                        <Carousel>
-                          <CarouselContent>
-                            {topEntries.map((entry, index) => (
-                              <CarouselItem
-                                key={entry.id}
-                                className="md:basis-1/2"
-                              >
-                                <motion.div variants={fadeInUp}>
-                                  <div className="relative p-0.5">
-                                    <div className="absolute -right-3 -top-3 w-9 h-9 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold z-10 text-sm">
-                                      #{index + 1}
-                                    </div>
-                                    <EntryCard
-                                      entry={{
-                                        ...entry,
-                                        featured: index === 0,
-                                      }}
-                                      user={user}
-                                      hasVoted={hasVoted}
-                                      votingFor={votingFor}
-                                      handleVote={handleVote}
-                                      className={
-                                        index === 0
-                                          ? "border-2 border-accent/30"
-                                          : ""
-                                      }
-                                    />
-                                  </div>
-                                </motion.div>
-                              </CarouselItem>
-                            ))}
-                          </CarouselContent>
-                          <div className="hidden md:flex">
-                            <CarouselPrevious className="mt-32" />
-                            <CarouselNext className="mt-32" />
-                          </div>
-                        </Carousel>
+                        {/* All Top Entries with Pagination */}
+                        <div className="mt-12">
+                          <h3 className="text-xl font-semibold mb-6 flex items-center">
+                            <TrendingUp className="w-5 h-5 mr-2 text-primary" />
+                            Top 5 Entries
+                          </h3>
 
-                        <div className="flex justify-center mt-8">
-                          <Link href="/entries">
-                            <Button
-                              variant="outline"
-                              className="gap-2 rounded-full"
-                            >
-                              View All Entries
-                              <ArrowRight className="h-4 w-4" />
-                            </Button>
-                          </Link>
-                        </div>
-                      </motion.div>
-                    )}
-                  </TabsContent>
-                  <TabsContent value="recent">
-                    {loadingEntries ? (
-                      <div className="flex justify-center items-center py-16">
-                        <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full"></div>
-                      </div>
-                    ) : (
-                      <motion.div
-                        className="grid gap-6 pt-6"
-                        variants={containerVariants}
-                        initial="hidden"
-                        animate="visible"
-                      >
-                        <Carousel>
-                          <CarouselContent>
-                            {entries.slice(0, 8).map((entry, index) => (
-                              <CarouselItem
-                                key={entry.id}
-                                className="md:basis-1/2"
-                              >
-                                <motion.div variants={fadeInUp}>
+                          <motion.div
+                            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                            variants={containerVariants}
+                          >
+                            {" "}
+                            {currentTopEntries.map((entry, index) => (
+                              <motion.div key={entry.id} variants={fadeInUp}>
+                                <div className="relative">
+                                  <div className="absolute -left-3 -top-3 w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold z-10">
+                                    #{index + 1}
+                                  </div>
                                   <EntryCard
                                     entry={entry}
                                     user={user}
                                     hasVoted={hasVoted}
                                     votingFor={votingFor}
                                     handleVote={handleVote}
+                                    className="pl-2"
                                   />
-                                </motion.div>
-                              </CarouselItem>
-                            ))}
-                          </CarouselContent>
-                          <div className="hidden md:flex">
-                            <CarouselPrevious className="mt-32" />
-                            <CarouselNext className="mt-32" />
+                                </div>
+                              </motion.div>
+                            ))}{" "}
+                          </motion.div>
+                        </div>{" "}
+                        <div className="flex justify-center mt-10">
+                          <Link href="/entries">
+                            <AnimatedGradientBorder
+                              borderWidth="2px"
+                              borderRadius="rounded-full"
+                              gradientColors="from-primary via-accent to-primary"
+                              animationDuration={8}
+                              containerClassName="w-fit"
+                            >
+                              <Button
+                                variant="outline"
+                                className="gap-2 rounded-full px-6 py-6 bg-black/50 backdrop-blur-md hover:bg-black/70 transition-colors duration-300 text-base font-medium border-transparent"
+                              >
+                                View All Entries
+                                <ArrowRight className="h-5 w-5" />
+                              </Button>
+                            </AnimatedGradientBorder>
+                          </Link>
+                        </div>
+                      </motion.div>
+                    )}{" "}
+                  </TabsContent>{" "}
+                  <TabsContent value="recent">
+                    {loadingEntries ? (
+                      <div className="flex justify-center items-center py-16">
+                        <div className="animate-pulse rounded-full h-16 w-16 bg-primary/20 flex items-center justify-center">
+                          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+                        </div>
+                      </div>
+                    ) : (
+                      <motion.div
+                        className="pt-6"
+                        variants={containerVariants}
+                        initial="hidden"
+                        animate="visible"
+                        id="recent-entries-container"
+                      >
+                        {" "}
+                        {/* Header for recent entries with animated subtitle */}
+                        <motion.div
+                          className="mb-10 text-center"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.5 }}
+                        >
+                          <h3 className="text-2xl font-bold text-white mb-2">
+                            Latest Submissions
+                          </h3>
+                          <div className="flex items-center justify-center gap-1.5 text-sm text-primary">
+                            <Clock className="h-4 w-4" />
+                            <span>Updated 6/12/2025</span>
                           </div>
-                        </Carousel>
-
+                        </motion.div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {entries.slice(0, 6).map((entry, index) => (
+                            <motion.div
+                              key={entry.id}
+                              variants={fadeInUp}
+                              className="w-full h-full"
+                              custom={index}
+                              transition={{ delay: index * 0.1 }}
+                            >
+                              <EntryCard
+                                entry={entry}
+                                user={user}
+                                hasVoted={hasVoted}
+                                votingFor={votingFor}
+                                handleVote={handleVote}
+                                className="w-full h-full"
+                              />
+                            </motion.div>
+                          ))}
+                        </div>
                         <div className="flex justify-center mt-8">
                           <Link href="/entries">
                             <Button

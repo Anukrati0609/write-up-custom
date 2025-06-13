@@ -126,6 +126,16 @@
   .tech-glow {
     box-shadow: 0 0 30px rgba(var(--primary-rgb), 0.5);
   }
+
+  /* Hide scrollbar for horizontal scrolling */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Tech grid and patterns */
