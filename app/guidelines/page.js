@@ -94,7 +94,7 @@ export default function Guidelines() {
         >
           <SectionHeading
             title="Competition Guidelines"
-            subtitle="Rules and guidelines for the Matrix JEC WriteItUp competition"
+            subtitle="Rules and guidelines for Whisper Escape: WriteItUp"
             containerClassName="relative"
           >
             <motion.div
@@ -131,9 +131,9 @@ export default function Guidelines() {
 
                 <ul className="ml-2 text-slate-300 space-y-3 mb-8">
                   {[
-                    "Open to all students currently enrolled at Jabalpur Engineering College",
-                    "Participants must submit original content that has not been published elsewhere",
-                    "Students from all branches and years are eligible to participate",
+                    "Open to all the members of our Community, from first year to the final year folks!",
+                    "Participants must submit original content.",  "Plagiarism will lead to disqualification.",
+                    "One participant may send more than one entries", "Entires can be in any format, from essays to articles, and stories to proses.",
                   ].map((item, index) => (
                     <motion.li
                       key={index}
@@ -163,11 +163,11 @@ export default function Guidelines() {
 
             <ul className="text-slate-300 space-y-3">
               {[
-                "Word limit: 1000-1500 words",
-                "Content must be original and plagiarism-free",
-                "Topic: Technology and Innovation OR Social Impact of Engineering",
+                "Word limit: 450-500 words",
+                "File format: txt",
+                "Topic: Any topic of your musings, as long as it is original and creative",
                 "Format: Text submissions through the online portal only",
-                "Deadline: June 30, 2025 at 11:59 PM IST",
+                "Deadline: July 15, 2025 at 11:59 PM IST",
               ].map((item, index) => (
                 <motion.li
                   key={index}
@@ -320,8 +320,8 @@ export default function Guidelines() {
               <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8">
                 {[
                   {
-                    title: "Registration Opens",
-                    date: "June 10, 2025",
+                    title: "Event commences",
+                    date: "June 20, 2025",
                     color: "bg-indigo-500/30",
                     textColor: "text-indigo-300",
                     borderColor: "border-indigo-500/30",
@@ -329,7 +329,7 @@ export default function Guidelines() {
                   },
                   {
                     title: "Submission Deadline",
-                    date: "June 30, 2025",
+                    date: "July 15, 2025",
                     color: "bg-purple-500/30",
                     textColor: "text-purple-300",
                     borderColor: "border-purple-500/30",
@@ -337,7 +337,7 @@ export default function Guidelines() {
                   },
                   {
                     title: "Results Announced",
-                    date: "July 10, 2025",
+                    date: "July 21, 2025",
                     color: "bg-pink-500/30",
                     textColor: "text-pink-300",
                     borderColor: "border-pink-500/30",
@@ -397,7 +397,7 @@ export default function Guidelines() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7, duration: 0.5 }}
         >
-          Registration closes on June 29, 2025
+          Registrations open until July 15, 2025
         </motion.p>
       </div>
     </main>

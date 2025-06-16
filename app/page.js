@@ -323,31 +323,39 @@ export default function Home() {
   };
 
   // Statistics data
+  const getDaysLeft = () => {
+  const today = new Date();
+  const eventDate = new Date("2025-07-15T23:59:59"); // set your actual deadline
+  const timeDiff = eventDate - today;
+  const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+  return daysLeft > 0 ? daysLeft : 0;
+};
+
   const stats = [
     {
       icon: <FileText className="h-7 w-7 text-blue-400" />,
-      value: "120+",
+      value: "100",
       label: "Submissions",
       bgColor: "bg-blue-500/20",
       borderColor: "border-blue-500/30",
     },
     {
       icon: <Users className="h-7 w-7 text-purple-400" />,
-      value: "500+",
+      value: "100",
       label: "Participants",
       bgColor: "bg-purple-500/20",
       borderColor: "border-purple-500/30",
     },
     {
       icon: <Award className="h-7 w-7 text-emerald-400" />,
-      value: "₹10K",
-      label: "Prize Pool",
+      value: "1",
+      label: "Winner",
       bgColor: "bg-emerald-500/20",
       borderColor: "border-emerald-500/30",
     },
     {
       icon: <Star className="h-7 w-7 text-amber-400" />,
-      value: "10",
+      value: getDaysLeft().toString(),
       label: "Days Left",
       bgColor: "bg-amber-500/20",
       borderColor: "border-amber-500/30",
@@ -360,75 +368,75 @@ export default function Home() {
       icon: <Sparkles className="h-6 w-6 text-blue-500" />,
       title: "Showcase Your Talent",
       description:
-        "Display your writing skills to a wider audience and gain recognition among peers and industry professionals.",
+        "Display your writing skills to the audience and gain recognition amongst your team and peers!",
       color: "from-blue-500 to-indigo-500",
     },
     {
       icon: <FileText className="h-6 w-6 text-purple-500" />,
-      title: "Expert Feedback",
+      title: "A chance to  be featured",
       description:
-        "Receive valuable feedback from industry experts and experienced writers to improve your skills.",
+        "Top 3 entries will be featured on the official Matrix handl",
       color: "from-purple-500 to-pink-500",
     },
     {
       icon: <Globe className="h-6 w-6 text-green-500" />,
-      title: "Networking Opportunities",
+      title: "Enhancing communication skills",
       description:
-        "Connect with like-minded individuals and build relationships that can help in your professional journey.",
+        "Connect with like-minded individuals and enhance your communication and vocab.",
       color: "from-green-500 to-emerald-500",
     },
     {
       icon: <Zap className="h-6 w-6 text-amber-500" />,
-      title: "Win Exciting Rewards",
+      title: "A surprise reward",
       description:
-        "Top entries will be rewarded with cash prizes, certificates, and exclusive opportunities.",
+        "Winner would receive a surprise reward from Matrix team!",
       color: "from-amber-500 to-orange-500",
     },
   ];
   // Timeline data
   const timelineEvents = [
     {
-      date: "June 11, 2025",
-      title: "Registrations Open",
+      date: "June 20th, 2025",
+      title: "Event commences",
       description:
-        "Registration portal opens for all participants. Early bird registrations get special benefits.",
+        "Registration portal opens for all participants. Show us your creativity now!",
       icon: <FileText className="h-5 w-5 text-blue-400" />,
       status: "completed",
       color: "blue",
     },
     {
-      date: "June 14, 2025",
-      title: "Last Day for Registration",
+      date: "June 20th onwards",
+      title: "Event Ongoing",
       description:
-        "Final day to complete your registration and become eligible for the competition.",
+        "Participants can submit their entries anytime before the deadline.",
       icon: <Clock className="h-5 w-5 text-amber-400" />,
       status: "active",
       color: "amber",
       highlight: true,
     },
     {
-      date: "June 15, 2025",
-      title: "Competition Starts",
+      date: "July 15, 2025",
+      title: "Event Ends",
       description:
-        "All registered participants receive the topic and guidelines. Start creating your masterpiece!",
+        "Final day to unleash your creativity and get a chance to win an exciting reward.",
       icon: <Rocket className="h-5 w-5 text-green-400" />,
       status: "upcoming",
       color: "green",
     },
+   // {
+   //   date: "June 30, 2025",
+   //   title: "Competition Ends",
+   //   description:
+   //     "Final submission deadline. All entries must be submitted by 11:59 PM.",
+    //  icon: <Check className="h-5 w-5 text-purple-400" />,
+    //  status: "upcoming",
+    //  color: "purple",
+   // },
     {
-      date: "June 30, 2025",
-      title: "Competition Ends",
-      description:
-        "Final submission deadline. All entries must be submitted by 11:59 PM.",
-      icon: <Check className="h-5 w-5 text-purple-400" />,
-      status: "upcoming",
-      color: "purple",
-    },
-    {
-      date: "July 7, 2025",
+      date: "July 17, 2025",
       title: "Results Announcement",
       description:
-        "Winners and honorable mentions will be announced on our website and social media channels.",
+        "Winners and honorable mentions will be announced.",
       icon: <Award className="h-5 w-5 text-emerald-400" />,
       status: "upcoming",
       color: "emerald",
@@ -502,7 +510,7 @@ export default function Home() {
               >
                 <div className="h-6 w-1.5 rounded-full bg-gradient-to-b from-blue-500 to-purple-600"></div>
                 <span className="text-lg tracking-wider uppercase text-blue-400 font-medium">
-                  Tech Writing Competition
+                  A Premier Writing Competition
                 </span>
               </motion.div>
 
@@ -538,7 +546,7 @@ export default function Home() {
                     animate={{ opacity: 1 }}
                     transition={{ duration: 1, delay: 0.5 }}
                   >
-                    WriteItUp
+                    Whisper Escape
                   </motion.span>
                 </AnimatedGradientBorder>
               </h1>
@@ -643,7 +651,7 @@ export default function Home() {
                   </CardHeader>
                   <CardContent className="space-y-8">
                     <TerminalDisplay
-                      text="Welcome to Matrix WriteItUp - The premier tech writing competition!"
+                      text="Welcome to Whisper Escape - The premier writing competition, for team matrix, by the team matrix!!"
                       delay={1000}
                       className="w-full backdrop-blur-xl"
                     />
@@ -653,21 +661,21 @@ export default function Home() {
                         <div className="text-xs text-gray-400">Start Date</div>
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4 text-blue-400" />
-                          <span className="text-sm">June 15, 2025</span>
+                          <span className="text-sm">June 20, 2025</span>
                         </div>
                       </div>
                       <div className="flex flex-col gap-1.5">
                         <div className="text-xs text-gray-400">End Date</div>
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4 text-purple-400" />
-                          <span className="text-sm">June 30, 2025</span>
+                          <span className="text-sm">July 15, 2025</span>
                         </div>
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <div className="text-xs text-gray-400">Prize Pool</div>
+                        <div className="text-xs text-gray-400">Prize</div>
                         <div className="flex items-center gap-2">
                           <Award className="h-4 w-4 text-amber-400" />
-                          <span className="text-sm">₹10,000</span>
+                          <span className="text-sm">Something as cool as this event!</span>
                         </div>
                       </div>
                       <div className="flex flex-col gap-1.5">
@@ -676,7 +684,7 @@ export default function Home() {
                         </div>
                         <div className="flex items-center gap-2">
                           <Users className="h-4 w-4 text-green-400" />
-                          <span className="text-sm">500+</span>
+                          <span className="text-sm">Our beloved Team, From first to the final year!</span>
                         </div>
                       </div>
                     </div>
@@ -684,11 +692,11 @@ export default function Home() {
                     <div className="space-y-2">
                       <div className="text-sm flex items-center gap-2">
                         <BrainCircuit className="h-4 w-4 text-blue-400" />
-                        <span>Topics: Technology, AI, Web Development</span>
+                        <span>Topics: Anything that floats your boat</span>
                       </div>
                       <div className="text-sm flex items-center gap-2">
                         <FileText className="h-4 w-4 text-purple-400" />
-                        <span>Format: 1500-2000 words article</span>
+                        <span>Format: 450-500 words</span>
                       </div>
                     </div>
                   </CardContent>
@@ -734,8 +742,7 @@ export default function Home() {
               Competition Statistics
             </h2>
             <p className="mt-4 text-lg text-white/70 max-w-2xl mx-auto">
-              Join hundreds of talented writers and tech enthusiasts in this
-              exciting competition
+              Reveal your creative prowess now!
             </p>
           </motion.div>
 
@@ -823,7 +830,7 @@ export default function Home() {
                 <span className="flex items-center justify-center space-x-2">
                   <Clock className="h-4 w-4 text-primary animate-pulse" />
                   <span>
-                    Today is June 13, 2025 - Registration closes tomorrow!
+                    Registrations are live
                   </span>
                 </span>
               }
@@ -1167,7 +1174,7 @@ export default function Home() {
                     Top Entries
                   </span>
                 }
-                subtitle="Check out the highest voted submissions in our competition"
+                subtitle="Check out the highest voted submissions in the competition"
               />
             </motion.div>
 
@@ -1357,7 +1364,7 @@ export default function Home() {
         <div className="container mx-auto px-4 space-y-12">
           <SectionHeading
             title="Why Participate?"
-            subtitle="Benefits of joining Matrix WriteItUp competition"
+            subtitle="Benefits of joining Whisper Escape"
           />
 
           <motion.div
@@ -1444,18 +1451,17 @@ export default function Home() {
               &rdquo;
             </div>
             <blockquote className="text-xl md:text-2xl italic px-12 py-8">
-              Writing is the painting of the voice. Matrix WriteItUp provides
-              the canvas for students to express their thoughts and showcase
-              their writing talent to the world.
+              Writing is the painting of the voice. Whisper Escape is a canvas
+              where your words can dance, inspire, and create a symphony! Ink the anonumous and ditch the tag. NOW!
             </blockquote>
             <div className="mt-6 flex items-center justify-center">
               <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-white font-bold text-xl">
                 M
               </div>
               <div className="ml-4 text-left">
-                <p className="font-semibold">Prof. Rajesh Kumar</p>
+                <p className="font-semibold">The Editorial Council</p>
                 <p className="text-sm text-muted-foreground">
-                  Faculty Coordinator, Matrix JEC
+                  Team Matrix JEC
                 </p>
               </div>
             </div>
@@ -1531,7 +1537,7 @@ export default function Home() {
                       transition={{ duration: 0.6, delay: 0.2 }}
                     >
                       <TerminalDisplay
-                        text="Join Matrix WriteItUp today and be part of the most exciting tech writing competition. Limited spots available!"
+                        text="Be part of the most exciting writing competition. Time is ticking!"
                         className="max-w-2xl mx-auto my-8"
                       />
                     </motion.div>
@@ -1578,7 +1584,7 @@ export default function Home() {
                     >
                       <p className="text-sm text-white/60 flex items-center justify-center gap-2">
                         <Clock className="h-4 w-4" />
-                        Competition starts on June 15, 2025
+                        Competition starts on June 20, 2025
                       </p>
                     </motion.div>
                   </div>
