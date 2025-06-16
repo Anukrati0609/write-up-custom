@@ -324,12 +324,12 @@ export default function Home() {
 
   // Statistics data
   const getDaysLeft = () => {
-  const today = new Date();
-  const eventDate = new Date("2025-07-15T23:59:59"); // set your actual deadline
-  const timeDiff = eventDate - today;
-  const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-  return daysLeft > 0 ? daysLeft : 0;
-};
+    const today = new Date();
+    const eventDate = new Date("2025-07-15T23:59:59"); // set your actual deadline
+    const timeDiff = eventDate - today;
+    const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+    return daysLeft > 0 ? daysLeft : 0;
+  };
 
   const stats = [
     {
@@ -388,8 +388,7 @@ export default function Home() {
     {
       icon: <Zap className="h-6 w-6 text-amber-500" />,
       title: "A surprise reward",
-      description:
-        "Winner would receive a surprise reward from Matrix team!",
+      description: "Winner would receive a surprise reward from Matrix team!",
       color: "from-amber-500 to-orange-500",
     },
   ];
@@ -423,20 +422,19 @@ export default function Home() {
       status: "upcoming",
       color: "green",
     },
-   // {
-   //   date: "June 30, 2025",
-   //   title: "Competition Ends",
-   //   description:
-   //     "Final submission deadline. All entries must be submitted by 11:59 PM.",
+    // {
+    //   date: "June 30, 2025",
+    //   title: "Competition Ends",
+    //   description:
+    //     "Final submission deadline. All entries must be submitted by 11:59 PM.",
     //  icon: <Check className="h-5 w-5 text-purple-400" />,
     //  status: "upcoming",
     //  color: "purple",
-   // },
+    // },
     {
       date: "July 17, 2025",
       title: "Results Announcement",
-      description:
-        "Winners and honorable mentions will be announced.",
+      description: "Winners and honorable mentions will be announced.",
       icon: <Award className="h-5 w-5 text-emerald-400" />,
       status: "upcoming",
       color: "emerald",
@@ -635,7 +633,7 @@ export default function Home() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            <FloatingElement yOffset={15} duration={3}>
+            <FloatingElement distance={15} duration={3}>
               <ThreeDCard
                 className="w-full max-w-xl mx-auto overflow-hidden"
                 glareEnabled={true}
@@ -675,7 +673,9 @@ export default function Home() {
                         <div className="text-xs text-gray-400">Prize</div>
                         <div className="flex items-center gap-2">
                           <Award className="h-4 w-4 text-amber-400" />
-                          <span className="text-sm">Something as cool as this event!</span>
+                          <span className="text-sm">
+                            Something as cool as this event!
+                          </span>
                         </div>
                       </div>
                       <div className="flex flex-col gap-1.5">
@@ -684,7 +684,9 @@ export default function Home() {
                         </div>
                         <div className="flex items-center gap-2">
                           <Users className="h-4 w-4 text-green-400" />
-                          <span className="text-sm">Our beloved Team, From first to the final year!</span>
+                          <span className="text-sm">
+                            Our beloved Team, From first to the final year!
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -829,9 +831,7 @@ export default function Home() {
               subtitle={
                 <span className="flex items-center justify-center space-x-2">
                   <Clock className="h-4 w-4 text-primary animate-pulse" />
-                  <span>
-                    Registrations are live
-                  </span>
+                  <span>Registrations are live</span>
                 </span>
               }
             />
@@ -1358,76 +1358,105 @@ export default function Home() {
       </section>
       {/* Features section */}
       <section className="py-20 relative overflow-hidden">
+        {" "}
         <div className="absolute inset-0 bg-grid-small-white/5 -z-10" />
         <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/10 rounded-full blur-[120px] -z-10" />
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-blue-500/10 rounded-full blur-[100px] -z-10" />
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm -z-10" />
         <div className="container mx-auto px-4 space-y-12">
-          <SectionHeading
-            title="Why Participate?"
-            subtitle="Benefits of joining Whisper Escape"
-          />
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <SectionHeading
+              title="Why Participate?"
+              subtitle="Benefits of joining Whisper Escape"
+            />
+          </motion.div>
 
           <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8"
             variants={staggerContainer}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.1 }}
           >
             {keyFeatures.map((feature, index) => (
-              <motion.div key={index} variants={popIn}>
-                <ThreeDCard
-                  className="h-full bg-black/40 backdrop-blur-sm rounded-xl overflow-hidden"
-                  glareEnabled={true}
-                  glareColor="rgba(255, 255, 255, 0.1)"
-                  borderColor="rgba(255, 255, 255, 0.1)"
-                >
-                  <CardHeader>
-                    <AnimatedGradientBorder
-                      borderWidth="2px"
-                      borderRadius="rounded-xl"
-                      containerClassName="w-fit"
-                      gradientColors={`${feature.color} via-white/20`}
-                    >
-                      <div
-                        className={`h-14 w-14 bg-gradient-to-br ${feature.color} rounded-lg flex items-center justify-center`}
+              <FloatingElement
+                key={index}
+                distance={8}
+                duration={4}
+                delay={index * 0.5}
+              >
+                <motion.div variants={popIn} className="h-full">
+                  <ThreeDCard
+                    className="h-full bg-black/60 backdrop-blur-md border border-white/5 rounded-xl overflow-hidden hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300"
+                    glareEnabled={true}
+                    glareMaxOpacity={0.15}
+                    glareColor={`rgba(255, 255, 255, 0.15)`}
+                    borderColor={`rgba(255, 255, 255, 0.1)`}
+                  >
+                    <CardHeader className="pb-2">
+                      <AnimatedGradientBorder
+                        borderWidth="2px"
+                        borderRadius="rounded-xl"
+                        containerClassName="w-fit"
+                        gradientColors={`${feature.color} via-white/30`}
                       >
-                        <motion.div
-                          animate={{
-                            rotate: [0, 5, -5, 0],
-                            scale: [1, 1.1, 1],
-                          }}
-                          transition={{
-                            duration: 4,
-                            repeat: Infinity,
-                            repeatType: "reverse",
-                            delay: index * 0.2,
-                          }}
-                          className="mt-4"
+                        <div
+                          className={`h-16 w-16 bg-gradient-to-br ${feature.color} rounded-lg flex items-center justify-center shadow-lg`}
                         >
-                          {feature.icon}
-                        </motion.div>
-                      </div>
-                    </AnimatedGradientBorder>
-                    <CardTitle className="mt-4 text-xl font-bold">
-                      {feature.title}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-white/70">{feature.description}</p>
-                  </CardContent>
-                  <CardFooter className="pt-2">
-                    <TechButton
-                      variant="ghost"
-                      size="sm"
-                      className="w-full justify-center"
-                      rightIcon={<ChevronRight className="h-4 w-4" />}
-                    >
-                      Learn more
-                    </TechButton>
-                  </CardFooter>
-                </ThreeDCard>
-              </motion.div>
+                          <motion.div
+                            animate={{
+                              rotate: [0, 8, -8, 0],
+                              scale: [1, 1.15, 1],
+                            }}
+                            transition={{
+                              duration: 5,
+                              repeat: Infinity,
+                              repeatType: "reverse",
+                              delay: index * 0.3,
+                            }}
+                          >
+                            {feature.icon}
+                          </motion.div>
+                        </div>
+                      </AnimatedGradientBorder>
+                      <CardTitle className="mt-5 text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/80">
+                        {feature.title}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="pb-2">
+                      <p className="text-white/70 text-sm md:text-base">
+                        {feature.description}
+                      </p>
+                    </CardContent>
+                    <CardFooter className="pt-0">
+                      <GlowingButton
+                        variant="ghost"
+                        size="sm"
+                        className="w-full justify-center group"
+                        glowColor={feature.color.split(" ")[1]}
+                      >
+                        <span className="mr-2">Learn more</span>
+                        <motion.span
+                          animate={{ x: [0, 4, 0] }}
+                          transition={{
+                            duration: 1.5,
+                            repeat: Infinity,
+                            repeatType: "loop",
+                            ease: "easeInOut",
+                          }}
+                        >
+                          <ChevronRight className="h-4 w-4 group-hover:text-white transition-colors" />
+                        </motion.span>
+                      </GlowingButton>
+                    </CardFooter>
+                  </ThreeDCard>
+                </motion.div>
+              </FloatingElement>
             ))}
           </motion.div>
         </div>
@@ -1453,7 +1482,8 @@ export default function Home() {
             </div>
             <blockquote className="text-xl md:text-2xl italic px-12 py-8">
               Writing is the painting of the voice. Whisper Escape is a canvas
-              where your words can dance, inspire, and create a symphony! Ink the anonumous and ditch the tag. NOW!
+              where your words can dance, inspire, and create a symphony! Ink
+              the anonumous and ditch the tag. NOW!
             </blockquote>
             <div className="mt-6 flex items-center justify-center">
               <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-white font-bold text-xl">
@@ -1461,9 +1491,7 @@ export default function Home() {
               </div>
               <div className="ml-4 text-left">
                 <p className="font-semibold">The Editorial Council</p>
-                <p className="text-sm text-muted-foreground">
-                  Team Matrix JEC
-                </p>
+                <p className="text-sm text-muted-foreground">Team Matrix JEC</p>
               </div>
             </div>
           </motion.div>
