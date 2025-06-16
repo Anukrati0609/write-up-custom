@@ -322,13 +322,12 @@ export default function Register() {
                 </motion.h2>
 
                 <motion.p
-                  className="text-slate-300 max-w-md mx-auto mb-8 text-lg"
+                  className="text-slate-300 text-balance max-w-md mx-auto mb-8 text-lg"
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 1.1 }}
                 >
-                  Your submission has been received. We&apos;ll review it and
-                  get back to you soon.
+                  Your submission has been received.Wishing you good luck
                 </motion.p>
 
                 <motion.button

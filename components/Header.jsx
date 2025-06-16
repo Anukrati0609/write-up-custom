@@ -275,25 +275,19 @@ const Header = () => {
                 </AnimatedGradientBorder>
               </div>
             )}
-          </div>
+          </div>{" "}
           {/* Mobile Menu */}
           <div className="flex items-center gap-2 md:hidden">
             <Sheet>
               <SheetTrigger asChild>
-                <AnimatedGradientBorder
-                  borderRadius="rounded-lg"
-                  borderWidth={1.5}
-                  gradientColors="from-primary via-violet-600 to-purple-600"
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 rounded-lg bg-background/80 border border-primary/20 hover:bg-primary/10 transition-colors relative z-10"
                 >
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-9 w-9 rounded-lg bg-background/80 relative z-10"
-                  >
-                    <LayoutGrid className="h-4 w-4" />
-                    <span className="sr-only">Toggle Menu</span>
-                  </Button>
-                </AnimatedGradientBorder>
+                  <LayoutGrid className="h-4 w-4" />
+                  <span className="sr-only">Toggle Menu</span>
+                </Button>
               </SheetTrigger>
               <SheetContent
                 side="right"
@@ -383,12 +377,12 @@ const Header = () => {
                     >
                       <h4 className="mb-2 text-xs font-semibold text-foreground/70 flex items-center gap-1.5">
                         <User className="h-3.5 w-3.5" /> Account
-                      </h4>
+                      </h4>{" "}
                       <AnimatedGradientBorder
                         borderRadius="rounded-xl"
                         borderWidth={1}
                         gradientColors="from-primary/50 via-violet-500/50 to-purple-500/50"
-                        className="p-3"
+                        className="p-3 bg-background/80 backdrop-blur-sm"
                       >
                         <div className="flex items-center gap-3">
                           <Avatar className="h-10 w-10 border border-slate-200/20 dark:border-slate-800/20">
@@ -404,7 +398,7 @@ const Header = () => {
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="text-sm font-medium">
+                            <p className="text-sm font-medium text-foreground">
                               {user.displayName}
                             </p>
                             <p className="text-xs text-muted-foreground">
@@ -461,9 +455,32 @@ const Header = () => {
                 </nav>
               </SheetContent>
             </Sheet>
-          </div>
+          </div>{" "}
         </div>
       </motion.header>
+
+      {/* Search Dialog */}
+      <CommandDialog open={open} onOpenChange={setOpen}>
+        <DialogTitle className="sr-only">Search Navigation</DialogTitle>
+        <CommandInput placeholder="Type a command or search..." />
+        <CommandList>
+          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandGroup heading="Navigation">
+            {navItems.map((item) => (
+              <CommandItem
+                key={item.href}
+                onSelect={() => {
+                  setOpen(false);
+                  window.location.href = item.href;
+                }}
+              >
+                <item.icon className="mr-2 h-4 w-4" />
+                <span>{item.label}</span>
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </CommandList>
+      </CommandDialog>
     </>
   );
 };

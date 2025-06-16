@@ -361,35 +361,46 @@ export default function Home() {
       borderColor: "border-amber-500/30",
     },
   ];
-
   // Key Features data
   const keyFeatures = [
     {
-      icon: <Sparkles className="h-6 w-6 text-blue-500" />,
+      icon: (
+        <Sparkles className="h-6 w-6 text-blue-400 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+      ),
       title: "Showcase Your Talent",
       description:
         "Display your writing skills to the audience and gain recognition amongst your team and peers!",
       color: "from-blue-500 to-indigo-500",
+      glowColor: "blue-400",
     },
     {
-      icon: <FileText className="h-6 w-6 text-purple-500" />,
-      title: "A chance to  be featured",
+      icon: (
+        <FileText className="h-6 w-6 text-purple-400 drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]" />
+      ),
+      title: "A chance to be featured",
       description:
         "Top 3 entries will be featured on the official Matrix handl",
       color: "from-purple-500 to-pink-500",
+      glowColor: "purple-400",
     },
     {
-      icon: <Globe className="h-6 w-6 text-green-500" />,
+      icon: (
+        <Globe className="h-6 w-6 text-green-400 drop-shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
+      ),
       title: "Enhancing communication skills",
       description:
         "Connect with like-minded individuals and enhance your communication and vocab.",
       color: "from-green-500 to-emerald-500",
+      glowColor: "green-400",
     },
     {
-      icon: <Zap className="h-6 w-6 text-amber-500" />,
+      icon: (
+        <Zap className="h-6 w-6 text-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+      ),
       title: "A surprise reward",
       description: "Winner would receive a surprise reward from Matrix team!",
       color: "from-amber-500 to-orange-500",
+      glowColor: "amber-400",
     },
   ];
   // Timeline data
@@ -1432,15 +1443,15 @@ export default function Home() {
                       <p className="text-white/70 text-sm md:text-base">
                         {feature.description}
                       </p>
-                    </CardContent>
+                    </CardContent>{" "}
                     <CardFooter className="pt-0">
                       <GlowingButton
                         variant="ghost"
                         size="sm"
-                        className="w-full justify-center group"
-                        glowColor={feature.color.split(" ")[1]}
+                        className="mb-4 mt-4 w-full justify-between group items-center px-4"
+                        glowColor={feature.glowColor}
                       >
-                        <span className="mr-2">Learn more</span>
+                        <span>Learn more</span>
                         <motion.span
                           animate={{ x: [0, 4, 0] }}
                           transition={{
