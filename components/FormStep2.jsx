@@ -25,10 +25,19 @@ const FormStep2 = ({
       content: html,
     }));
   };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit();
+
+    // Only submit if it's a genuine user-initiated submission
+    // Check if the submit button was explicitly clicked or if using the submitter property
+    const submitter = e.nativeEvent.submitter;
+    const isExplicitSubmit =
+      (submitter && submitter.id === "submit-form-btn") ||
+      (submitter && submitter.getAttribute("data-user-clicked") === "true");
+
+    if (isExplicitSubmit) {
+      onSubmit();
+    }
   };
 
   const inputVariants = {
@@ -42,6 +51,12 @@ const FormStep2 = ({
   return (
     <motion.form
       onSubmit={handleSubmit}
+      onKeyDown={(e) => {
+        // Prevent form submission on Enter key press except in single-line inputs
+        if (e.key === "Enter" && e.target.tagName !== "INPUT") {
+          e.preventDefault();
+        }
+      }}
       className="space-y-5 p-6 backdrop-blur-md bg-gradient-to-br from-slate-900/80 to-slate-800/70 rounded-xl border border-slate-700/50 shadow-xl"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -136,10 +151,17 @@ const FormStep2 = ({
           <MdKeyboardArrowLeft className="h-5 w-5 mr-2 relative z-10 group-hover:-translate-x-1 transition-transform" />
           <span className="relative z-10">Back</span>
           <div className="absolute inset-0 bg-gradient-to-r from-slate-600 to-slate-500 opacity-0 group-hover:opacity-20 transition-opacity" />
-        </motion.button>
+        </motion.button>{" "}
         <motion.button
           type="submit"
           disabled={loading}
+          id="submit-form-btn"
+          onClick={(e) => {
+            // Explicitly mark this as a user-initiated submit
+            if (!loading) {
+              e.currentTarget.setAttribute("data-user-clicked", "true");
+            }
+          }}
           className="flex-1 py-3.5 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg transition-all shadow-lg hover:shadow-blue-500/30 flex items-center justify-center group relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
           whileHover={{ scale: loading ? 1 : 1.03 }}
           whileTap={{ scale: loading ? 1 : 0.98 }}

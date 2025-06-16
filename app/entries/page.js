@@ -228,7 +228,7 @@ export default function Entries() {
       <Toaster position="top-center" />
       <SectionHeading
         title="Competition Entries"
-        subtitle="Browse and vote for your favorite entries in the Matrix WriteItUp competition"
+        subtitle="Browse and vote for your favorite entries in the Matrix Whisper Escape competition"
       />
       {user && hasVoted() && (
         <motion.div

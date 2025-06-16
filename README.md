@@ -1,10 +1,10 @@
-# Matrix WriteItUp - Content Writing Competition Platform
+# Matrix Whisper Escape - Content Writing Competition Platform
 
 A comprehensive web platform for organizing and managing content writing competitions, built with Next.js and Firebase. This platform provides a complete solution for registration, submission, voting, and administration of writing competitions.
 
 ## 🎯 Project Overview
 
-Matrix WriteItUp is a content writing competition platform developed for Matrix JEC - the skill enhancement community of Jabalpur Engineering College. It features user authentication, content submission, voting mechanisms, and administrative controls.
+Matrix Whisper Escape is a content writing competition platform developed for Matrix JEC - the skill enhancement community of Jabalpur Engineering College. It features user authentication, content submission, voting mechanisms, and administrative controls.
 
 ## 🚀 Tech Stack
 
@@ -34,7 +34,7 @@ Matrix WriteItUp is a content writing competition platform developed for Matrix 
 ## 📁 Project Structure
 
 ```
-matrix-writeitup/
+matrix-Whisper Escape/
 ├── app/                          # Next.js App Router
 │   ├── api/                      # API routes
 │   │   ├── admin/                # Admin management
@@ -322,7 +322,7 @@ EDGE_CONFIG=your_edge_config_token
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd matrix-writeitup
+cd matrix-Whisper Escape
 
 # Install dependencies
 npm install

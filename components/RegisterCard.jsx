@@ -9,13 +9,15 @@ const RegisterCard = () => {
         <div className="h-12 w-12 bg-blue-600 rounded-xl flex items-center justify-center">
           <Image
             src="/file.svg"
-            alt="WriteItUp"
+            alt="Whisper Escape"
             width={24}
             height={24}
             className="text-white"
           />
         </div>
-        <h2 className="text-2xl font-bold ml-4 text-white">Join WriteItUp</h2>
+        <h2 className="text-2xl font-bold ml-4 text-white">
+          Join Whisper Escape
+        </h2>
       </div>
 
       <div className="space-y-4 mb-6">

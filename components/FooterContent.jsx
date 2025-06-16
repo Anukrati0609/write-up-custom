@@ -50,7 +50,7 @@ const FooterContent = () => {
             <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <Image
               src="/file.svg"
-              alt="WriteItUp Logo"
+              alt="Whisper Escape Logo"
               width={22}
               height={22}
               className="text-white relative z-10 transition-transform duration-300 group-hover:scale-110"
@@ -61,7 +61,7 @@ const FooterContent = () => {
             <h3 className="font-bold text-xl text-foreground">
               <span className="relative inline-block">Matrix</span>
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400">
-                WriteItUp
+                Whisper Escape
               </span>
             </h3>
             <div className="flex items-center gap-1.5 mt-1">

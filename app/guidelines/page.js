@@ -94,7 +94,7 @@ export default function Guidelines() {
         >
           <SectionHeading
             title="Competition Guidelines"
-            subtitle="Rules and guidelines for Whisper Escape: WriteItUp"
+            subtitle="Rules and guidelines for Whisper Escape: Whisper Escape"
             containerClassName="relative"
           >
             <motion.div
@@ -132,8 +132,10 @@ export default function Guidelines() {
                 <ul className="ml-2 text-slate-300 space-y-3 mb-8">
                   {[
                     "Open to all the members of our Community, from first year to the final year folks!",
-                    "Participants must submit original content.",  "Plagiarism will lead to disqualification.",
-                    "One participant may send more than one entries", "Entires can be in any format, from essays to articles, and stories to proses.",
+                    "Participants must submit original content.",
+                    "Plagiarism will lead to disqualification.",
+                    "One participant may send more than one entries",
+                    "Entires can be in any format, from essays to articles, and stories to proses.",
                   ].map((item, index) => (
                     <motion.li
                       key={index}

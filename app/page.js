@@ -703,7 +703,7 @@ export default function Home() {
                   <CardFooter>
                     <TechButton
                       variant="cyber"
-                      className="w-full h-12 rounded-xl text-lg font-medium shadow-lg shadow-purple-500/20"
+                      className="w-full h-12 rounded-xl text-lg font-medium shadow-lg shadow-purple-500/20 mt-4"
                       glowing={true}
                       rightIcon={<ArrowRight className="h-5 w-5" />}
                     >
@@ -1403,6 +1403,7 @@ export default function Home() {
                             repeatType: "reverse",
                             delay: index * 0.2,
                           }}
+                          className="mt-4"
                         >
                           {feature.icon}
                         </motion.div>

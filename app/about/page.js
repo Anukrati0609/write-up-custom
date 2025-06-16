@@ -102,24 +102,6 @@ export default function About() {
         }}
       ></div>
       {/* Team Section */}
-{/*<section className="relative z-10 py-16 text-white">
-  <h2 className="text-3xl font-bold text-center mb-10">Meet the Team</h2>
-
- {/* <div className="flex flex-wrap justify-center gap-6">
-    {teamMembers.map((member) => (
-      <div
-        key={member.name}
-        className={`w-[250px] p-4 rounded-xl shadow-md text-center border ${member.bgColor} ${member.textColor}`}
-      >
-        <div className="text-4xl font-bold">{member.initial}</div>
-        <div className="mt-2 text-lg font-semibold">{member.name}</div>
-        <div className="text-sm text-gray-400">{member.role}</div>
-      </div>
-    ))}
-  </div>
-</section>*/}
-
-
       {/* Animated glow effects */}
       <motion.div
         className={`absolute top-1/4 -left-1/4 w-1/2 h-1/2 bg-blue-500/20 blur-[100px] rounded-full transition-transform`}
@@ -193,16 +175,16 @@ export default function About() {
           <h2 className="text-2xl font-bold text-white mb-4">Our Mission</h2>
           <p className="text-slate-300 mb-6">
             Matrix JEC is dedicated to enhancing the technical and professional
-            skills of students at JEC. We organize
-            workshops, competitions, and events that help students develop
-            essential skills needed in today&apos;s competitive world.
+            skills of students at JEC. We organize workshops, competitions, and
+            events that help students develop essential skills needed in
+            today&apos;s competitive world.
           </p>
 
           <h2 className="text-2xl font-bold text-white mb-4 mt-8">
             About Whiser Escape
           </h2>
           <p className="text-slate-300 mb-6">
-            The WriteItUp competition is our flagship content writing event
+            The Whisper Escape competition is our flagship content writing event
             designed to discover and promote writing talent within our club.
             This competition provides a platform for students to express their
             thoughts, showcase their writing skills, and receive feedback from
@@ -237,7 +219,6 @@ export default function About() {
                   "Open to all students of the club",
                   "Submissions accepted from June 20 to July 15, 2025",
                   "Evaluation solely based on votes by club members",
-                  
                 ].map((item, index) => (
                   <motion.li
                     key={index}
@@ -273,7 +254,7 @@ export default function About() {
               <ul className="list-none text-slate-300 space-y-3 pl-2 relative z-10">
                 {[
                   "Exciting reward for the winner",
-                  
+
                   "Special recognition for top 3 entries",
                   "Publication opportunities for selected entries",
                 ].map((item, index) => (
@@ -316,7 +297,7 @@ export default function About() {
           </motion.div>
 
           <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 gap-8"
+            className="grid grid-cols-1 md:grid-cols-3 gap-8"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.5 }}

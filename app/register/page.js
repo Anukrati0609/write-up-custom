@@ -174,7 +174,7 @@ export default function Register() {
             <h3 className="text-xl font-bold ml-3 tracking-tight text-white">
               Matrix
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
-                WriteItUp
+                Whisper Escape
               </span>
             </h3>
           </motion.div>
@@ -185,7 +185,7 @@ export default function Register() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            Join Matrix WriteItUp Competition
+            Join Matrix Whisper Escape Competition
           </motion.h1>
 
           <motion.p
@@ -272,7 +272,7 @@ export default function Register() {
 
                   <div className="mt-6 text-center text-slate-500 text-sm">
                     <p>
-                      By continuing, you agree to our
+                      By continuing, you agree to our&nbsp;
                       <Link
                         href="/guidelines"
                         className="text-blue-400 hover:text-blue-300 hover:underline transition-colors"

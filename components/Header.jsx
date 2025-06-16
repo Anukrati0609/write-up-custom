@@ -168,7 +168,7 @@ const Header = () => {
               <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-purple-500/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <Image
                 src="/file.svg"
-                alt="WriteItUp Logo"
+                alt="Whisper Escape Logo"
                 width={24}
                 height={24}
                 className="text-white relative z-10 group-hover:scale-110 transition-transform duration-300"
@@ -179,7 +179,7 @@ const Header = () => {
               <span className="text-lg font-bold text-foreground leading-tight tracking-tight">
                 <span className="relative inline-block">Matrix</span>
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400">
-                  WriteItUp
+                  Whisper Escape
                 </span>
               </span>
               <motion.div variants={badgeVariants}>
@@ -311,7 +311,7 @@ const Header = () => {
                       <div className="absolute inset-0 bg-grid-small-white/10 mix-blend-overlay" />
                       <Image
                         src="/file.svg"
-                        alt="WriteItUp Logo"
+                        alt="Whisper Escape Logo"
                         width={22}
                         height={22}
                         className="text-white relative z-10 group-hover:scale-110 transition-transform duration-300"
@@ -322,7 +322,7 @@ const Header = () => {
                       <span className="text-lg font-bold text-foreground leading-tight tracking-tight">
                         Matrix
                         <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
-                          WriteItUp
+                          Whisper Escape
                         </span>
                       </span>
                       <Badge
