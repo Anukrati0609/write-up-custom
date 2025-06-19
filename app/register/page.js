@@ -435,7 +435,7 @@ export default function Register() {
                       </span>
                     </motion.div>
                   </div>
-                </div>{" "}
+                </div>
                 {step === 1 ? (
                   <FormStep1
                     formData={formData}

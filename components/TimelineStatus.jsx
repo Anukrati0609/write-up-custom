@@ -157,7 +157,7 @@ export default function TimelineStatus() {
                 : "text-slate-300"
             }`}
           >
-            {formatDate(timeline.registrationStart)} -{" "}
+            {formatDate(timeline.registrationStart)} -
             {formatDate(timeline.registrationEnd)}
           </span>
         </div>
@@ -170,7 +170,7 @@ export default function TimelineStatus() {
                 : "text-slate-300"
             }`}
           >
-            {formatDate(timeline.submissionStart)} -{" "}
+            {formatDate(timeline.submissionStart)} -
             {formatDate(timeline.submissionEnd)}
           </span>
         </div>
@@ -181,8 +181,7 @@ export default function TimelineStatus() {
               currentPhase === "voting" ? "text-purple-400" : "text-slate-300"
             }`}
           >
-            {formatDate(timeline.votingStart)} -{" "}
-            {formatDate(timeline.votingEnd)}
+            {formatDate(timeline.votingStart)} -{formatDate(timeline.votingEnd)}
           </span>
         </div>
         <div className="flex items-center justify-between">
