@@ -3,7 +3,6 @@ import "./globals.css";
 import Header from "@/components/Header";
 import FooterContent from "@/components/FooterContent";
 import { ThemeProvider } from "@/components/theme-provider";
-import { useUserStore } from "@/store/useUserStore";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,6 +20,8 @@ export const metadata = {
     "Content Writing Competition organized by Matrix JEC - the skill enhancement community of Jabalpur Engineering College",
   icons: {
     icon: "/faviconn.png",
+    apple: "/faviconn.png",
+    shortcut: "/faviconn.png",
   },
 };
 
@@ -28,7 +29,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" type="image/svg+xml" href="/faviconn.svg" />
+        <link rel="icon" type="image/png" href="/faviconn.png" />
+        <link rel="apple-touch-icon" href="/faviconn.png" />
+        <link rel="shortcut icon" href="/faviconn.png" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}

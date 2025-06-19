@@ -177,7 +177,6 @@ const FormStep1 = ({ formData, setFormData, onNext, branches = [] }) => {
               className="w-full pl-10 pr-10 py-3.5 bg-slate-800/80 border border-slate-700/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white shadow-inner transition-all appearance-none group-hover:bg-slate-800 group-hover:border-blue-500/50"
               style={{ color: "white", backgroundColor: "#1e293b" }}
             >
-              {" "}
               <option
                 value=""
                 disabled

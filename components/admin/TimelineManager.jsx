@@ -247,7 +247,7 @@ export default function TimelineManager({ timeline, onSave, loading }) {
                   Registration Phase
                 </h3>
                 <p className="text-slate-400 text-sm">
-                  {formatDateForDisplay(timeline?.registrationStart)} -{" "}
+                  {formatDateForDisplay(timeline?.registrationStart)} -
                   {formatDateForDisplay(timeline?.registrationEnd)}
                 </p>
               </div>
@@ -261,7 +261,7 @@ export default function TimelineManager({ timeline, onSave, loading }) {
                   Submission Phase
                 </h3>
                 <p className="text-slate-400 text-sm">
-                  {formatDateForDisplay(timeline?.submissionStart)} -{" "}
+                  {formatDateForDisplay(timeline?.submissionStart)} -
                   {formatDateForDisplay(timeline?.submissionEnd)}
                 </p>
               </div>
@@ -275,7 +275,7 @@ export default function TimelineManager({ timeline, onSave, loading }) {
                   Voting Phase
                 </h3>
                 <p className="text-slate-400 text-sm">
-                  {formatDateForDisplay(timeline?.votingStart)} -{" "}
+                  {formatDateForDisplay(timeline?.votingStart)} -
                   {formatDateForDisplay(timeline?.votingEnd)}
                 </p>
               </div>

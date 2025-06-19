@@ -10,6 +10,7 @@ const ThreeDCard = ({
   containerClassName,
   glareEnabled = true,
   glareColor = "rgba(255, 255, 255, 0.2)",
+  glareMaxOpacity = 0.5,
   rotationIntensity = 10,
   borderColor = "rgba(255, 255, 255, 0.1)",
   ...props
@@ -66,9 +67,12 @@ const ThreeDCard = ({
             className="absolute pointer-events-none inset-0 transition-opacity duration-200"
             style={{
               backgroundImage: `radial-gradient(circle at ${glarePosition.x}px ${glarePosition.y}px, ${glareColor} 0%, rgba(255,255,255,0) 60%)`,
-              opacity:
-                Math.sqrt(rotation.x * rotation.x + rotation.y * rotation.y) /
-                10,
+              opacity: Math.min(
+                (Math.sqrt(rotation.x * rotation.x + rotation.y * rotation.y) /
+                  10) *
+                  glareMaxOpacity,
+                glareMaxOpacity
+              ),
             }}
           />
         )}

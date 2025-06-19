@@ -151,7 +151,7 @@ const FormStep2 = ({
           <MdKeyboardArrowLeft className="h-5 w-5 mr-2 relative z-10 group-hover:-translate-x-1 transition-transform" />
           <span className="relative z-10">Back</span>
           <div className="absolute inset-0 bg-gradient-to-r from-slate-600 to-slate-500 opacity-0 group-hover:opacity-20 transition-opacity" />
-        </motion.button>{" "}
+        </motion.button>
         <motion.button
           type="submit"
           disabled={loading}

@@ -113,24 +113,28 @@ const EntryCard = ({
                   Featured
                 </div>
               </div>
-            )}{" "}
+            )}
             <CardHeader className="pb-2 relative">
               <CardTitle className="text-foreground text-2xl md:text-3xl font-bold text-left">
                 {entry.title}
               </CardTitle>
               <div className="flex items-center gap-2 mt-2">
-                <Badge
-                  variant="secondary"
-                  className="text-xs bg-primary/20 text-primary border-primary/30"
-                >
-                  {getOrdinalYear(entry.year)} Year
-                </Badge>
-                <Badge
-                  variant="secondary"
-                  className="text-xs bg-accent/20 text-accent border-accent/30"
-                >
-                  {entry.branch}
-                </Badge>
+                {isAdmin && (
+                  <>
+                    <Badge
+                      variant="secondary"
+                      className="text-xs bg-primary/20 text-primary border-primary/30"
+                    >
+                      {getOrdinalYear(entry.year)} Year
+                    </Badge>
+                    <Badge
+                      variant="secondary"
+                      className="text-xs bg-accent/20 text-accent border-accent/30"
+                    >
+                      {entry.branch}
+                    </Badge>
+                  </>
+                )}
                 {isAdmin && showAllDetails && entry.status && (
                   <Badge
                     variant="secondary"
@@ -144,7 +148,7 @@ const EntryCard = ({
                     {getStatusInfo(entry.status).label}
                   </Badge>
                 )}
-              </div>{" "}
+              </div>
               {isAdmin && showAllDetails && entry.authorName && (
                 <div className="flex items-center gap-1 mt-2 text-sm text-muted-foreground">
                   <User className="h-3 w-3" />
@@ -157,7 +161,7 @@ const EntryCard = ({
                 </div>
               )}
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500/30 via-primary/50 to-purple-500/30"></div>
-            </CardHeader>{" "}
+            </CardHeader>
             <CardContent className="flex-grow px-5 py-4">
               <div className="flex flex-row justify-between items-center mb-4">
                 <Badge
@@ -188,7 +192,6 @@ const EntryCard = ({
 
               {isAdmin && showAllDetails && (
                 <div className="mb-4 space-y-2">
-                  {" "}
                   {entry.voters && entry.voters.length > 0 && (
                     <div className="flex items-center gap-2">
                       <Users className="h-4 w-4 text-muted-foreground" />
@@ -221,7 +224,7 @@ const EntryCard = ({
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
                       <span className="text-xs text-muted-foreground">
-                        Updated:{" "}
+                        Updated:
                         {new Date(entry.updatedAt).toLocaleDateString()}
                       </span>
                     </div>
@@ -230,7 +233,7 @@ const EntryCard = ({
                     <div className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-muted-foreground" />
                       <span className="text-xs text-muted-foreground">
-                        Reviewed:{" "}
+                        Reviewed:
                         {new Date(
                           entry.reviewedAt.seconds
                             ? entry.reviewedAt.seconds * 1000
@@ -253,7 +256,7 @@ const EntryCard = ({
               <p className="text-white/80 line-clamp-2 text-left text-base">
                 {truncateContent(entry.content, 60)}
               </p>
-            </CardContent>{" "}
+            </CardContent>
             <CardFooter className="flex flex-row justify-between items-center pt-3 pb-4 border-t border-border/20">
               <div className="flex items-center justify-start">
                 <motion.div whileTap={{ scale: 0.95 }}>
@@ -319,7 +322,7 @@ const EntryCard = ({
       </motion.div>
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto bg-black/90 border-primary/40 backdrop-blur-md text-foreground shadow-xl shadow-primary/20">
-          <div className="absolute -z-10 inset-0 bg-gradient-to-br from-blue-900/20 via-black/0 to-purple-900/20 rounded-lg overflow-hidden"></div>{" "}
+          <div className="absolute -z-10 inset-0 bg-gradient-to-br from-blue-900/20 via-black/0 to-purple-900/20 rounded-lg overflow-hidden"></div>
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold flex items-center gap-2 bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-white">
               {entry.title}
@@ -333,18 +336,22 @@ const EntryCard = ({
               )}
             </DialogTitle>
             <div className="flex items-center gap-2 mt-2">
-              <Badge
-                variant="secondary"
-                className="text-xs bg-primary/20 text-primary border-primary/30"
-              >
-                {getOrdinalYear(entry.year)} Year
-              </Badge>
-              <Badge
-                variant="secondary"
-                className="text-xs bg-accent/20 text-accent border-accent/30"
-              >
-                {entry.branch}
-              </Badge>
+              {isAdmin && (
+                <>
+                  <Badge
+                    variant="secondary"
+                    className="text-xs bg-primary/20 text-primary border-primary/30"
+                  >
+                    {getOrdinalYear(entry.year)} Year
+                  </Badge>
+                  <Badge
+                    variant="secondary"
+                    className="text-xs bg-accent/20 text-accent border-accent/30"
+                  >
+                    {entry.branch}
+                  </Badge>
+                </>
+              )}
               {isAdmin && entry.status && (
                 <Badge
                   variant="secondary"
@@ -363,11 +370,11 @@ const EntryCard = ({
               <DialogDescription className="text-sm text-muted-foreground flex items-center gap-1">
                 <Clock className="h-3.5 w-3.5" />
                 Submitted on {new Date(entry.createdAt).toLocaleDateString()}
-              </DialogDescription>{" "}
+              </DialogDescription>
               {isAdmin && entry.authorName && (
                 <DialogDescription className="text-sm text-muted-foreground flex items-center gap-1">
                   <User className="h-3.5 w-3.5" />
-                  Author: {entry.authorName}{" "}
+                  Author: {entry.authorName}
                   {entry.userId && `(${entry.userId.substring(0, 12)}...)`}
                 </DialogDescription>
               )}
@@ -380,7 +387,7 @@ const EntryCard = ({
               {isAdmin && entry.reviewedAt && (
                 <DialogDescription className="text-sm text-muted-foreground flex items-center gap-1">
                   <CheckCircle className="h-3.5 w-3.5" />
-                  Reviewed:{" "}
+                  Reviewed:
                   {new Date(
                     entry.reviewedAt.seconds
                       ? entry.reviewedAt.seconds * 1000
@@ -393,7 +400,7 @@ const EntryCard = ({
                   <User className="h-3.5 w-3.5" />
                   Reviewed by: {entry.reviewedBy}
                 </DialogDescription>
-              )}{" "}
+              )}
               {isAdmin && entry.voters && entry.voters.length > 0 && (
                 <div className="space-y-1">
                   <DialogDescription className="text-sm text-muted-foreground flex items-center gap-1">
@@ -422,7 +429,7 @@ const EntryCard = ({
           </DialogHeader>
           <div className="my-4 prose prose-invert max-w-none">
             <div dangerouslySetInnerHTML={{ __html: entry.content }} />
-          </div>{" "}
+          </div>
           <div className="mt-6 flex justify-between items-center border-t border-primary/20 pt-4">
             <div className="flex items-center gap-4">
               <Badge

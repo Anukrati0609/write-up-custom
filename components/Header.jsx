@@ -275,7 +275,7 @@ const Header = () => {
                 </AnimatedGradientBorder>
               </div>
             )}
-          </div>{" "}
+          </div>
           {/* Mobile Menu */}
           <div className="flex items-center gap-2 md:hidden">
             <Sheet>
@@ -377,7 +377,7 @@ const Header = () => {
                     >
                       <h4 className="mb-2 text-xs font-semibold text-foreground/70 flex items-center gap-1.5">
                         <User className="h-3.5 w-3.5" /> Account
-                      </h4>{" "}
+                      </h4>
                       <AnimatedGradientBorder
                         borderRadius="rounded-xl"
                         borderWidth={1}
@@ -455,7 +455,7 @@ const Header = () => {
                 </nav>
               </SheetContent>
             </Sheet>
-          </div>{" "}
+          </div>
         </div>
       </motion.header>
 

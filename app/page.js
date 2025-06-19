@@ -812,7 +812,7 @@ export default function Home() {
             ))}
           </motion.div>
         </div>
-      </section>{" "}
+      </section>
       {/* Timeline Section */}
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 -z-30">
@@ -902,7 +902,6 @@ export default function Home() {
                         damping: 10,
                       }}
                     >
-                      {" "}
                       <GlassMorphism
                         className={`p-5 ${
                           index % 2 === 0 ? "ml-auto" : "mr-auto"
@@ -1046,7 +1045,7 @@ export default function Home() {
                         )}
                       </GlassMorphism>
                     </motion.div>
-                  </div>{" "}
+                  </div>
                   <motion.div
                     className="absolute left-1/2 transform -translate-x-1/2 w-14 h-14 z-10"
                     whileHover={{
@@ -1369,7 +1368,6 @@ export default function Home() {
       </section>
       {/* Features section */}
       <section className="py-20 relative overflow-hidden">
-        {" "}
         <div className="absolute inset-0 bg-grid-small-white/5 -z-10" />
         <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/10 rounded-full blur-[120px] -z-10" />
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-blue-500/10 rounded-full blur-[100px] -z-10" />
@@ -1443,7 +1441,7 @@ export default function Home() {
                       <p className="text-white/70 text-sm md:text-base">
                         {feature.description}
                       </p>
-                    </CardContent>{" "}
+                    </CardContent>
                     <CardFooter className="pt-0">
                       <GlowingButton
                         variant="ghost"

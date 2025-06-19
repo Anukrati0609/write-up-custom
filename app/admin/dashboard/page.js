@@ -513,7 +513,7 @@ export default function AdminDashboard() {
                     </select>
                   </div>
                 </div>
-              </div>{" "}
+              </div>
               {/* Nested Tabs for Entries View */}
               <Tabs
                 value={entriesViewTab}
@@ -681,7 +681,7 @@ export default function AdminDashboard() {
 
                           <div className="text-sm text-muted-foreground bg-muted/10 px-4 py-2 rounded-full">
                             Showing {indexOfFirstEntry + 1}-
-                            {Math.min(indexOfLastEntry, filteredEntries.length)}{" "}
+                            {Math.min(indexOfLastEntry, filteredEntries.length)}
                             of {filteredEntries.length} entries
                           </div>
                         </div>
@@ -749,7 +749,7 @@ export default function AdminDashboard() {
                         </p>
                         {user.createdAt && (
                           <p className="text-xs text-slate-500 mt-1">
-                            Joined:{" "}
+                            Joined:
                             {new Date(user.createdAt).toLocaleDateString()}
                           </p>
                         )}
@@ -889,7 +889,7 @@ export default function AdminDashboard() {
 
                   <div className="text-sm text-muted-foreground bg-muted/10 px-4 py-2 rounded-full">
                     Showing {indexOfFirstUser + 1}-
-                    {Math.min(indexOfLastUser, filteredUsers.length)} of{" "}
+                    {Math.min(indexOfLastUser, filteredUsers.length)} of
                     {filteredUsers.length} users
                   </div>
                 </div>
