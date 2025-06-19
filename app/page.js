@@ -506,7 +506,7 @@ export default function Home() {
                   <div className="absolute -inset-2 bg-blue-500/20 rounded-full blur-md"></div>
                   <Calendar className="h-5 w-5 text-blue-400 relative z-10" />
                 </motion.div>
-                <span>Registration Open Until June 14, 2025</span>
+                <span>Registration Open Until June 20, 2025</span>
               </Badge>
             </motion.div>
 
